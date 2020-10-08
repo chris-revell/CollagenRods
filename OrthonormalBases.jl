@@ -9,9 +9,10 @@
 module OrthonormalBases
 
 using LinearAlgebra
+using Base.Threads 
 
 @inline function orthonormalBases!(N,Ω,E)
-    for i=1:N
+    @threads for i=1:N
         # Create orthonormal basis vectors around rod axis
         E[i,:,:] .= nullspace(Matrix(Ω[i,:]'))
     end
