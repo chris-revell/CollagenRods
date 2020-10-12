@@ -26,7 +26,7 @@ function main(N,L,σ,ϵ,p,η,kT,tMax,boxSize)
     DParallel       = D₀*(log(p)+-0.207+0.980/p-0.133/p^2)/2π
     DPerpendicular  = D₀*(log(p)+0.839+0.185/p+0.233/p^2)/4π
     DRotation       = 3*D₀*(log(p)-0.662+0.917/p-0.05/p^2)/(π*L^2)
-    
+
     # Create random number generators for each thread
     threadRNG = Vector{Random.MersenneTwister}(undef, nthreads())
     for i in 1:nthreads()
@@ -50,14 +50,18 @@ function main(N,L,σ,ϵ,p,η,kT,tMax,boxSize)
     # Iterate until reaching max run time.
     while t < tMax
 
+        # Create list of particle interaction pairs based on cell lists algorithm
+        #pairs_list,boundary_list = find_pairs(allDomains,pos,intrctnThrshld,Ng,neighbour_cells)
+
         orthonormalBases!(N,Ω,E)
         repulsiveForces!(N,r,Ω,F,τ,E,ϵ,σ,DParallel,DPerpendicular,DRotation,kT)
         attractiveForces!(N,r,Ω,F,τ,E,DParallel,DPerpendicular,DRotation,kT,L)
-        brownianMotion!(N,Ω,ξr,ξΩ,E,stds,threadRNG)
 
         F[:,:,1] = sum(F,dims=3)
         τ[:,:,1] = sum(τ,dims=3)
         Δt = adaptTimestep!(N,F,σ,D₀,kT)
+        stds = [sqrt(2.0*DParallel*Δt),sqrt(2.0*DPerpendicular*Δt),sqrt(2.0*DRotation*Δt)]
+        brownianMotion!(N,Ω,ξr,ξΩ,E,stds,threadRNG)
 
         Ω .+= τ[:,:,1].*Δt .+ ξΩ
         Ω .= Ω./sqrt.(sum(Ω.^2,dims=2)) # Normalise magnitude
@@ -79,7 +83,7 @@ end
 
 #%%
 
-N       = 10          # Number of rods
+N       = 20          # Number of rods
 L       = 1.0         # Rod length
 σ       = 0.005       # Rod diameter
 ϵ       = 0.000000001 # Hard core repulsion L-J potential depth
@@ -87,7 +91,7 @@ p       = L/σ         # Rod aspect ratio
 η       = 1.0         # Solvent shear viscocity
 kT      = 1.0         # Boltzman constant*Temperature
 #Δt      = 0.000000001 # Time step
-tMax    = 0.1         # Simulation duration
-boxSize = 0.5         # Dimensions of box in which rods are initialised
+tMax    = 0.01         # Simulation duration
+boxSize = 1.0         # Dimensions of box in which rods are initialised
 
 main(N,L,σ,ϵ,p,η,kT,tMax,boxSize)
