@@ -28,6 +28,7 @@ function main(N,L,σ,ϵ,p,η,kT,tMax,boxSize)
     DParallel       = D₀*(log(p)+-0.207+0.980/p-0.133/p^2)/2π
     DPerpendicular  = D₀*(log(p)+0.839+0.185/p+0.233/p^2)/4π
     DRotation       = 3*D₀*(log(p)-0.662+0.917/p-0.05/p^2)/(π*L^2)
+    interactionThresh = L+5.0*σ
 
     # Create random number generators for each thread
     threadRNG = Vector{Random.MersenneTwister}(undef, nthreads())
@@ -44,8 +45,8 @@ function main(N,L,σ,ϵ,p,η,kT,tMax,boxSize)
     ξΩ = zeros(Float64,N,3)                # Rotational stochastic component
     E  = zeros(Float64,N,3,2)              # Matrix for orthonormal bases
     #A = zeros(Float64,3,nthreads())       # Dummy vector for later calculations
-    pairs_list = Tuple{Int64, Int64}[]     # Array storing tuple of particle interaction pairs eg pairs_list[2]=(1,5) => 2nd element of array shows that particles 1 and 5 are in interaction range
-    neighbour_cells= Vector{Tuple{Int64,Int64,Int64}}(undef, 13) # Vector storing 13 neighbouring cells for a given cell
+    pairsList = Tuple{Int64, Int64}[]     # Array storing tuple of particle interaction pairs eg pairsList[2]=(1,5) => 2nd element of array shows that particles 1 and 5 are in interaction range
+    neighbourCells= Vector{Tuple{Int64,Int64,Int64}}(undef, 13) # Vector storing 13 neighbouring cells for a given cell
 
     anim = Animation() # Animation object to which plots are appended
 
@@ -55,7 +56,7 @@ function main(N,L,σ,ϵ,p,η,kT,tMax,boxSize)
     while t < tMax
 
         # Create list of particle interaction pairs based on cell lists algorithm
-        pairs_list = find_pairs(allDomains,pos,intrctnThrshld,Ng,neighbour_cells)
+        pairsList = findPairs!(N,r,interactionThresh,neighbourCells)
 
         orthonormalBases!(N,Ω,E)
         repulsiveForces!(N,r,Ω,F,τ,E,ϵ,σ,DParallel,DPerpendicular,DRotation,kT)
