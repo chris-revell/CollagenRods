@@ -25,3 +25,5 @@ Manifest.toml
 
 output/*
 *.gif
+
+.DS_Store

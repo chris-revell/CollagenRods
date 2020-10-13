@@ -16,6 +16,8 @@ include("./VisualiseStep.jl")
 using .VisualiseStep
 include("./AdaptTimestep.jl")
 using .AdaptTimestep
+include("./CellListFunctions.jl")
+using .CellListFunctions
 
 #%%
 
@@ -33,15 +35,17 @@ function main(N,L,σ,ϵ,p,η,kT,tMax,boxSize)
         threadRNG[i] = Random.MersenneTwister()
     end
 
-    r = (rand(Float64,N,3).-0.5).*boxSize # Random initial centrepoint positions of all rods
-    Ω = rand(Float64,N,3).*2.0.-1.0       # Random initial orientations of all rods
-    Ω .= Ω./sqrt.(sum(Ω.^2,dims=2))       # Normalise magnitude
-    τ = zeros(Float64,N,3,nthreads())     # Moments on each rod
-    F = zeros(Float64,N,3,nthreads())     # Forces on each rod
-    ξr = zeros(Float64,N,3)               # Translational stochastic component
-    ξΩ = zeros(Float64,N,3)               # Rotational stochastic component
-    E = zeros(Float64,N,3,2)              # Matrix for orthonormal bases
-    #A = zeros(Float64,3,nthreads())      # Dummy vector for later calculations
+    r  = (rand(Float64,N,3).-0.5).*boxSize # Random initial centrepoint positions of all rods
+    Ω  = rand(Float64,N,3).*2.0.-1.0       # Random initial orientations of all rods
+    Ω .= Ω./sqrt.(sum(Ω.^2,dims=2))        # Normalise magnitude
+    τ  = zeros(Float64,N,3,nthreads())     # Moments on each rod
+    F  = zeros(Float64,N,3,nthreads())     # Forces on each rod
+    ξr = zeros(Float64,N,3)                # Translational stochastic component
+    ξΩ = zeros(Float64,N,3)                # Rotational stochastic component
+    E  = zeros(Float64,N,3,2)              # Matrix for orthonormal bases
+    #A = zeros(Float64,3,nthreads())       # Dummy vector for later calculations
+    pairs_list = Tuple{Int64, Int64}[]     # Array storing tuple of particle interaction pairs eg pairs_list[2]=(1,5) => 2nd element of array shows that particles 1 and 5 are in interaction range
+    neighbour_cells= Vector{Tuple{Int64,Int64,Int64}}(undef, 13) # Vector storing 13 neighbouring cells for a given cell
 
     anim = Animation() # Animation object to which plots are appended
 
@@ -51,7 +55,7 @@ function main(N,L,σ,ϵ,p,η,kT,tMax,boxSize)
     while t < tMax
 
         # Create list of particle interaction pairs based on cell lists algorithm
-        #pairs_list,boundary_list = find_pairs(allDomains,pos,intrctnThrshld,Ng,neighbour_cells)
+        pairs_list = find_pairs(allDomains,pos,intrctnThrshld,Ng,neighbour_cells)
 
         orthonormalBases!(N,Ω,E)
         repulsiveForces!(N,r,Ω,F,τ,E,ϵ,σ,DParallel,DPerpendicular,DRotation,kT)
@@ -91,7 +95,7 @@ p       = L/σ         # Rod aspect ratio
 η       = 1.0         # Solvent shear viscocity
 kT      = 1.0         # Boltzman constant*Temperature
 #Δt      = 0.000000001 # Time step
-tMax    = 0.01         # Simulation duration
+tMax    = 0.005         # Simulation duration
 boxSize = 1.0         # Dimensions of box in which rods are initialised
 
 main(N,L,σ,ϵ,p,η,kT,tMax,boxSize)
