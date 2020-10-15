@@ -21,6 +21,7 @@ using Base.Threads
         # Rotational component of brownian motion
         ξΩ[i,:] .= rand(RNG[threadid()],Normal(0.0,stds[3])).*E[i,:,1] .+ rand(RNG[threadid()],Normal(0.0,stds[3])).*E[i,:,2]
     end
+    return nothing
 end
 export brownianMotion!
 
