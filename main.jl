@@ -6,10 +6,12 @@ using Base.Threads
 
 include("./OrthonormalBases.jl")
 using .OrthonormalBases
-include("./RepulsiveForces.jl")
-using .RepulsiveForces
-include("./AttractiveForces.jl")
-using .AttractiveForces
+#include("./RepulsiveForces.jl")
+#using .RepulsiveForces
+#include("./AttractiveForces.jl")
+#using .AttractiveForces
+include("./InterRodForces.jl")
+using .InterRodForces
 include("./BrownianMotion.jl")
 using .BrownianMotion
 include("./VisualiseStep.jl")
@@ -18,6 +20,10 @@ include("./AdaptTimestep.jl")
 using .AdaptTimestep
 include("./CellListFunctions.jl")
 using .CellListFunctions
+include("./CreateRunDirectory.jl")
+using .CreateRunDirectory
+include("./OutputData.jl")
+using .OutputData
 
 #%%
 
@@ -44,9 +50,16 @@ function main(N,L,σ,ϵ,p,η,kT,tMax,boxSize)
     ξr = zeros(Float64,N,3)                # Translational stochastic component
     ξΩ = zeros(Float64,N,3)                # Rotational stochastic component
     E  = zeros(Float64,N,3,2)              # Matrix for orthonormal bases
-    #A = zeros(Float64,3,nthreads())       # Dummy vector for later calculations
+    A  = zeros(Float64,3,nthreads())       # Matric of dummy vectors for later calculations
     pairsList = Tuple{Int64, Int64}[]      # Array storing tuple of particle interaction pairs eg pairsList[2]=(1,5) => 2nd element of array shows that particles 1 and 5 are in interaction range
     neighbourCells= Vector{Tuple{Int64,Int64,Int64}}(undef, 13) # Vector storing 13 neighbouring cells for a given cell
+
+
+
+
+    foldername = createRunDirectory(N,L,σ,ϵ,p,η,kT,tMax,boxSize,D₀,DParallel,DPerpendicular,DRotation,interactionThresh)
+    outfile = open("output/$(foldername)/output.txt","w")
+
 
     anim = Animation() # Animation object to which plots are appended
 
@@ -59,31 +72,35 @@ function main(N,L,σ,ϵ,p,η,kT,tMax,boxSize)
         pairsList = findPairs!(N,r,interactionThresh,neighbourCells)
 
         orthonormalBases!(N,Ω,E)
-        repulsiveForces!(N,r,Ω,F,τ,E,ϵ,σ,DParallel,DPerpendicular,DRotation,kT)
-        attractiveForces!(N,r,Ω,F,τ,E,DParallel,DPerpendicular,DRotation,kT,L)
+        #repulsiveForces!(pairsList,N,r,Ω,F,τ,E,ϵ,σ,DParallel,DPerpendicular,DRotation,kT)
+        #attractiveForces!(pairsList,N,r,Ω,F,τ,E,DParallel,DPerpendicular,DRotation,kT,L)
+        interRodForces!(pairsList,N,r,Ω,F,τ,E,A,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ)
 
         F[:,:,1] = sum(F,dims=3)
         τ[:,:,1] = sum(τ,dims=3)
         Δt = adaptTimestep!(N,F,σ,D₀,kT)
-        stds = [sqrt(2.0*DParallel*Δt),sqrt(2.0*DPerpendicular*Δt),sqrt(2.0*DRotation*Δt)]
-        brownianMotion!(N,Ω,ξr,ξΩ,E,stds,threadRNG)
+        stds = [sqrt(2.0*DParallel*Δt),
+                sqrt(2.0*DPerpendicular*Δt),
+                sqrt(2.0*DRotation*Δt)]
+        #brownianMotion!(N,Ω,ξr,ξΩ,E,stds,threadRNG)
 
-        Ω .+= τ[:,:,1].*Δt .+ ξΩ
+        Ω .+= τ[:,:,1].*Δt #.+ ξΩ
         Ω .= Ω./sqrt.(sum(Ω.^2,dims=2)) # Normalise magnitude
-        r .+= F[:,:,1].*Δt .+ ξr
+        r .+= F[:,:,1].*Δt #.+ ξr
 
         t += Δt
         if t%(tMax/100.0) < Δt
             visualiseStep(N,r,Ω,L)
             frame(anim)
             println(t)
+            #outputData(r,Ω,outfile,t,tMax)
         end
 
         τ .= 0.0
         F .= 0.0
 
     end
-    gif(anim, "test.gif", fps = 15);
+    #gif(anim, "test.gif", fps = 5);
 end
 
 #%%
@@ -95,7 +112,7 @@ L       = 1.0         # Rod length
 p       = L/σ         # Rod aspect ratio
 η       = 1.0         # Solvent shear viscocity
 kT      = 1.0         # Boltzman constant*Temperature
-tMax    = 0.005        # Simulation duration
+tMax    = 0.001        # Simulation duration
 boxSize = 1.0         # Dimensions of box in which rods are initialised
 
 main(N,L,σ,ϵ,p,η,kT,tMax,boxSize)
