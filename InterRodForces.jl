@@ -1,26 +1,50 @@
 #
-#  AttractiveForces.jl
+#  InterRodForces.jl
 #  collagen-diffusive-rods
 #
-#  Created by Christopher Revell on 08/10/2020.
+#  Created by Christopher Revell on 15/10/2020.
 #
 #
 
-module AttractiveForces
+module InterRodForces
 
 using LinearAlgebra
 include("./ShortestDistance.jl")
 using .ShortestDistance
 using Base.Threads
 
-@inline function attractiveForces!(pairsList,N,r,Ω,F,τ,E,DParallel,DPerpendicular,DRotation,kT,L)
+@inline function interRodForces!(pairsList,N,r,Ω,F,τ,E,A,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ)
 
     k₀ = 1.0
     ϵ₀ = 1.0
     Q  = 20.0
 
     @threads for (x,y) in pairsList
+
         rᵢⱼ = zeros(Float64,3)
+
+        # ---- RepulsiveForces ----
+
+        # Find shortest distance between rod x and rod y
+        (μ,λ) = shortestDistance!(r,Ω,rᵢⱼ,x,y)
+        minSeparation = sqrt(rᵢⱼ⋅rᵢⱼ)
+
+        # If shortest distance is less than rod radius, calculate hard core repulsion
+        if minSeparation < σ
+            FMag  = 24.0*ϵ*((σ^6.0)/(minSeparation^7.0) - 2.0*(σ^12.0)/(minSeparation^13.0))
+            rᵢⱼ .*= FMag/minSeparation
+
+            # Linear forces acting on rods x and y using orthonormal basis vectors
+            F[x,:,threadid()] .+= (DPerpendicular/kT)*((rᵢⱼ⋅E[x,:,1]).*E[x,:,1] .+ (rᵢⱼ⋅E[x,:,2]).*E[x,:,2]) .+ (DParallel/kT)*(rᵢⱼ⋅Ω[x,:]).*Ω[x,:]
+            F[y,:,threadid()] .-= (DPerpendicular/kT)*((rᵢⱼ⋅E[y,:,1]).*E[y,:,1] .+ (rᵢⱼ⋅E[y,:,2]).*E[y,:,2]) .+ (DParallel/kT)*(rᵢⱼ⋅Ω[y,:]).*Ω[y,:]
+
+            # Moments on rods x and y
+            τ[x,:,threadid()] .+= (DRotation/kT).*((r[x,:].-λ.*Ω[x,:])×rᵢⱼ)×Ω[x,:]
+            τ[y,:,threadid()] .-= (DRotation/kT).*((r[y,:].-μ.*Ω[y,:])×rᵢⱼ)×Ω[y,:]
+        end
+
+        # ---- AttractiveForces ----
+
         # Repeat forces in both directions within pair
         for (i,j) in [(x,y),(y,x)]
             # N end to N adjacent internal point
@@ -75,6 +99,6 @@ using Base.Threads
     return nothing
 end
 
-export attractiveForces!
+export interRodForces!
 
 end

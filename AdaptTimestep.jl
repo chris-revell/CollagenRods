@@ -15,8 +15,8 @@ using LinearAlgebra
 
     Fmax_sq = maximum(sum(F[:,:,1].*F[:,:,1],dims=2))
 
-    dt = min(σ^2/(32*D),kT*σ/(2.0*D*sqrt(Fmax_sq)))
-    #dt = min(0.00001,kT*σ/(2.0*D*sqrt(Fmax_sq)))
+    #dt = min(σ^2/(32*D),kT*σ/(2.0*D*sqrt(Fmax_sq)))
+    dt = min(0.00001,kT*σ/(2.0*D*sqrt(Fmax_sq)))
 
     return dt
 
