@@ -45,7 +45,7 @@ function main(N,L,σ,ϵ,p,η,kT,tMax,boxSize)
     ξΩ = zeros(Float64,N,3)                # Rotational stochastic component
     E  = zeros(Float64,N,3,2)              # Matrix for orthonormal bases
     #A = zeros(Float64,3,nthreads())       # Dummy vector for later calculations
-    pairsList = Tuple{Int64, Int64}[]     # Array storing tuple of particle interaction pairs eg pairsList[2]=(1,5) => 2nd element of array shows that particles 1 and 5 are in interaction range
+    pairsList = Tuple{Int64, Int64}[]      # Array storing tuple of particle interaction pairs eg pairsList[2]=(1,5) => 2nd element of array shows that particles 1 and 5 are in interaction range
     neighbourCells= Vector{Tuple{Int64,Int64,Int64}}(undef, 13) # Vector storing 13 neighbouring cells for a given cell
 
     anim = Animation() # Animation object to which plots are appended
@@ -95,8 +95,7 @@ L       = 1.0         # Rod length
 p       = L/σ         # Rod aspect ratio
 η       = 1.0         # Solvent shear viscocity
 kT      = 1.0         # Boltzman constant*Temperature
-#Δt      = 0.000000001 # Time step
-tMax    = 0.005         # Simulation duration
+tMax    = 0.005        # Simulation duration
 boxSize = 1.0         # Dimensions of box in which rods are initialised
 
 main(N,L,σ,ϵ,p,η,kT,tMax,boxSize)

@@ -28,7 +28,7 @@ using Base.Threads
             minSeparation = sqrt(rᵢⱼ⋅rᵢⱼ)
 
             # If shortest distance is less than rod radius, calculate hard core repulsion
-            if minSeparation < σ/2.0
+            if minSeparation < σ
                 FMag  = 24.0*ϵ*((σ^6.0)/(minSeparation^7.0) - 2.0*(σ^12.0)/(minSeparation^13.0))
                 rᵢⱼ .*= FMag/minSeparation
 
