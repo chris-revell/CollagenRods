@@ -19,6 +19,7 @@ function createRunDirectory(N,L,σ,ϵ,p,η,kT,tMax,boxSize,D₀,DParallel,DPerpe
 
     # Store system parameters.
     open("output/$(foldername)/conditions.txt","w") do conditionsfile
+        println(conditionsfile,"N,                $N")
         println(conditionsfile,"L,                $L")
         println(conditionsfile,"σ,                $σ")
         println(conditionsfile,"ϵ,                $ϵ")
@@ -31,7 +32,7 @@ function createRunDirectory(N,L,σ,ϵ,p,η,kT,tMax,boxSize,D₀,DParallel,DPerpe
         println(conditionsfile,"DParallel,        $DParallel")
         println(conditionsfile,"DPerpendicular,   $DPerpendicular")
         println(conditionsfile,"DRotation,        $DRotation")
-        println(conditionsfile,"interactionThresh,$interactionThresh")        
+        println(conditionsfile,"interactionThresh,$interactionThresh")
     end
 
     return foldername
