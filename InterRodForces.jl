@@ -17,9 +17,9 @@ using Base.Threads
 
     k₀ = 1.0
     ϵ₀ = 1.0
-    Q  = 20.0
+    Q  = 1000.0
 
-    @threads for (x,y) in pairsList
+    for (x,y) in pairsList
 
         rᵢⱼ = zeros(Float64,3)
 
@@ -47,53 +47,57 @@ using Base.Threads
 
         # Repeat forces in both directions within pair
         for (i,j) in [(x,y),(y,x)]
-            # N end to N adjacent internal point
-            rᵢⱼ .= (r[j,:] .+ Ω[j,:].*L/2.0) .- (r[i,:] .+ Ω[i,:].*L/3.0)
-            rMag = sqrt(rᵢⱼ⋅rᵢⱼ)
-            FMag  = (1.0+k₀*rMag)*(Q*exp(-k₀*rMag))/(4.0*π*ϵ₀*rMag^2)
-            rᵢⱼ .*= FMag/rMag
-            # Linear forces acting on rods i and j using orthonormal basis vectors
-            F[i,:,threadid()] .+= (DPerpendicular/kT)*((rᵢⱼ⋅E[i,:,1]).*E[i,:,1] .+ (rᵢⱼ⋅E[i,:,2]).*E[i,:,2]) .+ (DParallel/kT)*(rᵢⱼ⋅Ω[i,:]).*Ω[i,:]
-            F[j,:,threadid()] .-= (DPerpendicular/kT)*((rᵢⱼ⋅E[j,:,1]).*E[j,:,1] .+ (rᵢⱼ⋅E[j,:,2]).*E[j,:,2]) .+ (DParallel/kT)*(rᵢⱼ⋅Ω[j,:]).*Ω[j,:]
-            # Moment on rod i
-            τ[i,:,threadid()] .+= (DRotation/kT).*((r[i,:].+Ω[i,:].*L/3.0)×rᵢⱼ)×Ω[i,:]
-            τ[j,:,threadid()] .-= (DRotation/kT).*((r[j,:].+Ω[j,:].*L/2.0)×rᵢⱼ)×Ω[j,:]
 
-            # N end to C adjacent internal point
-            rᵢⱼ .= (r[j,:] .+ Ω[j,:].*L/2.0) .- (r[i,:] .- Ω[i,:].*L/3.0)
-            rMag = sqrt(rᵢⱼ⋅rᵢⱼ)
-            FMag  = (1.0+k₀*rMag)*(Q*exp(-k₀*rMag))/(4.0*π*ϵ₀*rMag^2)
-            rᵢⱼ .*= FMag/rMag
-            # Linear forces acting on rods i and j using orthonormal basis vectors
-            F[i,:,threadid()] .+= (DPerpendicular/kT)*((rᵢⱼ⋅E[i,:,1]).*E[i,:,1] .+ (rᵢⱼ⋅E[i,:,2]).*E[i,:,2]) .+ (DParallel/kT)*(rᵢⱼ⋅Ω[i,:]).*Ω[i,:]
-            F[j,:,threadid()] .-= (DPerpendicular/kT)*((rᵢⱼ⋅E[j,:,1]).*E[j,:,1] .+ (rᵢⱼ⋅E[j,:,2]).*E[j,:,2]) .+ (DParallel/kT)*(rᵢⱼ⋅Ω[j,:]).*Ω[j,:]
-            # Moment on rod i
-            τ[i,:,threadid()] .+= (DRotation/kT).*((r[i,:].-Ω[i,:].*L/3.0)×rᵢⱼ)×Ω[i,:]
-            τ[j,:,threadid()] .-= (DRotation/kT).*((r[j,:].+Ω[j,:].*L/2.0)×rᵢⱼ)×Ω[j,:]
+            # ith N tip to jth rod
+            nTipᵢ = r[i,:] .+ Ω[i,:].*L/2.0
+            nLimⱼ = r[j,:] .+ Ω[j,:].*(3.4/4.4-0.5)*L
+            cLimⱼ = r[j,:] .- Ω[j,:].*L/2.0
+            Δj    = Ω[j,:].*3.4/4.4
 
-            # C end to C adjacent internal point
-            rᵢⱼ .= (r[j,:] .- Ω[j,:].*L/2.0) .- (r[i,:] .- Ω[i,:].*L/3.0)
-            rMag = sqrt(rᵢⱼ⋅rᵢⱼ)
-            FMag  = (1.0+k₀*rMag)*(Q*exp(-k₀*rMag))/(4.0*π*ϵ₀*rMag^2)
-            rᵢⱼ .*= FMag/rMag
-            # Linear forces acting on rods i and j using orthonormal basis vectors
-            F[i,:,threadid()] .+= (DPerpendicular/kT)*((rᵢⱼ⋅E[i,:,1]).*E[i,:,1] .+ (rᵢⱼ⋅E[i,:,2]).*E[i,:,2]) .+ (DParallel/kT)*(rᵢⱼ⋅Ω[i,:]).*Ω[i,:]
-            F[j,:,threadid()] .-= (DPerpendicular/kT)*((rᵢⱼ⋅E[j,:,1]).*E[j,:,1] .+ (rᵢⱼ⋅E[j,:,2]).*E[j,:,2]) .+ (DParallel/kT)*(rᵢⱼ⋅Ω[j,:]).*Ω[j,:]
-            # Moment on rod i
-            τ[i,:,threadid()] .+= (DRotation/kT).*((r[i,:].-Ω[i,:].*L/3.0)×rᵢⱼ)×Ω[i,:]
-            τ[j,:,threadid()] .-= (DRotation/kT).*((r[j,:].-Ω[j,:].*L/2.0)×rᵢⱼ)×Ω[j,:]
+            # From https://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
+            rMag = sqrt(((nTipᵢ.-cLimⱼ)×(nTipᵢ.-nLimⱼ))⋅((nTipᵢ.-cLimⱼ)×(nTipᵢ.-nLimⱼ)))/(3.4*L/4.4)
 
-            # C end to N adjacent internal point
-            rᵢⱼ .= (r[j,:] .- Ω[j,:].*L/2.0) .- (r[i,:] .+ Ω[i,:].*L/3.0)
-            rMag = sqrt(rᵢⱼ⋅rᵢⱼ)
-            FMag  = (1.0+k₀*rMag)*(Q*exp(-k₀*rMag))/(4.0*π*ϵ₀*rMag^2)
-            rᵢⱼ .*= FMag/rMag
-            # Linear forces acting on rods i and j using orthonormal basis vectors
-            F[i,:,threadid()] .+= (DPerpendicular/kT)*((rᵢⱼ⋅E[i,:,1]).*E[i,:,1] .+ (rᵢⱼ⋅E[i,:,2]).*E[i,:,2]) .+ (DParallel/kT)*(rᵢⱼ⋅Ω[i,:]).*Ω[i,:]
-            F[j,:,threadid()] .-= (DPerpendicular/kT)*((rᵢⱼ⋅E[j,:,1]).*E[j,:,1] .+ (rᵢⱼ⋅E[j,:,2]).*E[j,:,2]) .+ (DParallel/kT)*(rᵢⱼ⋅Ω[j,:]).*Ω[j,:]
-            # Moment on rod i
-            τ[i,:,threadid()] .+= (DRotation/kT).*((r[i,:].+Ω[i,:].*L/3.0)×rᵢⱼ)×Ω[i,:]
-            τ[j,:,threadid()] .-= (DRotation/kT).*((r[j,:].-Ω[j,:].*L/2.0)×rᵢⱼ)×Ω[j,:]
+            #if rMag < 0.1*L
+                FMag  = (1.0+k₀*rMag)*(Q*exp(-k₀*rMag))/(4.0*π*ϵ₀*rMag^2)
+
+                # From https://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
+                t = -(cLimⱼ.-nTipᵢ)⋅Δj/(Δj⋅Δj)
+
+                rᵢⱼ .= (nTipᵢ .- (cLimⱼ.+(t.*Δj))).*FMag/rMag
+
+                # Linear forces acting on rods i and j using orthonormal basis vectors
+                F[i,:,threadid()] .+= (DPerpendicular/kT)*((rᵢⱼ⋅E[i,:,1]).*E[i,:,1] .+ (rᵢⱼ⋅E[i,:,2]).*E[i,:,2]) .+ (DParallel/kT)*(rᵢⱼ⋅Ω[i,:]).*Ω[i,:]
+                F[j,:,threadid()] .-= (DPerpendicular/kT)*((rᵢⱼ⋅E[j,:,1]).*E[j,:,1] .+ (rᵢⱼ⋅E[j,:,2]).*E[j,:,2]) .+ (DParallel/kT)*(rᵢⱼ⋅Ω[j,:]).*Ω[j,:]
+                # Moment on rod i
+                τ[i,:,threadid()] .+= (DRotation/kT)*(L/2.0).*(Ω[i,:]×rᵢⱼ)×Ω[i,:]
+                τ[j,:,threadid()] .-= (DRotation/kT).*((t-L/2.0).*Ω[j,:]×rᵢⱼ)×Ω[j,:]
+            #end
+
+            # ith C tip to jth rod
+            cTipᵢ = r[i,:] .- Ω[i,:].*L/2.0
+            nLimⱼ = r[j,:] .+ Ω[j,:].*L
+            cLimⱼ = r[j,:] .- Ω[j,:].*(3.4/4.4-0.5)*L
+            Δj = Ω[j,:].*3.4/4.4
+
+            # From https://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
+            rMag = sqrt(((nTipᵢ.-cLimⱼ)×(nTipᵢ.-nLimⱼ))⋅((nTipᵢ.-cLimⱼ)×(nTipᵢ.-nLimⱼ)))/(3.4*L/4.4)
+
+            #if rMag < 0.1*L
+                FMag  = (1.0+k₀*rMag)*(Q*exp(-k₀*rMag))/(4.0*π*ϵ₀*rMag^2)
+
+                # From https://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
+                t = -(cLimⱼ.-nTipᵢ)⋅Δj/(Δj⋅Δj)
+
+                rᵢⱼ .= (nTipᵢ .- (cLimⱼ.+(t.*Δj))).*FMag/rMag
+
+                # Linear forces acting on rods i and j using orthonormal basis vectors
+                F[i,:,threadid()] .+= (DPerpendicular/kT)*((rᵢⱼ⋅E[i,:,1]).*E[i,:,1] .+ (rᵢⱼ⋅E[i,:,2]).*E[i,:,2]) .+ (DParallel/kT)*(rᵢⱼ⋅Ω[i,:]).*Ω[i,:]
+                F[j,:,threadid()] .-= (DPerpendicular/kT)*((rᵢⱼ⋅E[j,:,1]).*E[j,:,1] .+ (rᵢⱼ⋅E[j,:,2]).*E[j,:,2]) .+ (DParallel/kT)*(rᵢⱼ⋅Ω[j,:]).*Ω[j,:]
+                # Moment on rod i
+                τ[i,:,threadid()] .+= (DRotation/kT)*(L/2.0).*(-Ω[i,:]×rᵢⱼ)×Ω[i,:]
+                τ[j,:,threadid()] .-= (DRotation/kT).*((t-L/2.0).*Ω[j,:]×rᵢⱼ)×Ω[j,:]
+            #end
+
         end
     end
     return nothing

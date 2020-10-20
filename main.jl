@@ -6,10 +6,6 @@ using Base.Threads
 
 include("./OrthonormalBases.jl")
 using .OrthonormalBases
-#include("./RepulsiveForces.jl")
-#using .RepulsiveForces
-#include("./AttractiveForces.jl")
-#using .AttractiveForces
 include("./InterRodForces.jl")
 using .InterRodForces
 include("./BrownianMotion.jl")
@@ -53,12 +49,10 @@ function main(N,L,σ,ϵ,η,kT,tMax,boxSize)
     E  = zeros(Float64,N,3,2)              # Matrix for orthonormal bases
     A  = zeros(Float64,3,nthreads())       # Matric of dummy vectors for later calculations
     pairsList = Tuple{Int64, Int64}[]      # Array storing tuple of particle interaction pairs eg pairsList[2]=(1,5) => 2nd element of array shows that particles 1 and 5 are in interaction range
-    neighbourCells= Vector{Tuple{Int64,Int64,Int64}}(undef, 13) # Vector storing 13 neighbouring cells for a given cell
+    neighbourCells = Vector{Tuple{Int64,Int64,Int64}}(undef, 13) # Vector storing 13 neighbouring cells for a given cell
 
     foldername = createRunDirectory(N,L,σ,ϵ,p,η,kT,tMax,boxSize,D₀,DParallel,DPerpendicular,DRotation,interactionThresh)
     outfile = open("output/$(foldername)/output.txt","w")
-
-    #anim = Animation() # Animation object to which plots are appended
 
     # Iterate until max run time reached
     t = 0.0 # Initialise system time
@@ -91,9 +85,6 @@ function main(N,L,σ,ϵ,η,kT,tMax,boxSize)
 
         t += Δt
         if t%(tMax/100.0) < Δt
-            #visualiseStep(N,r,Ω,L)
-            #frame(anim)
-            println(t)
             outputData(r,Ω,outfile,t,tMax)
         end
 
@@ -102,18 +93,17 @@ function main(N,L,σ,ϵ,η,kT,tMax,boxSize)
         F .= 0.0
 
     end
-    #gif(anim, "test.gif", fps = 5);
 end
 
 #%%
 
-N       = 100         # Number of rods
-L       = 1.0         # Rod length
-σ       = 0.005       # Rod diameter
-ϵ       = 0.000000001 # Hard core repulsion L-J potential depth
+N       = 2         # Number of rods
+L       = 0.5         # Rod length
+σ       = 0.05       # Rod diameter
+ϵ       = 0.000001 # Hard core repulsion L-J potential depth
 η       = 1.0         # Solvent shear viscocity
 kT      = 1.0         # Boltzman constant*Temperature
-tMax    = 0.1         # Simulation duration
-boxSize = 5.0         # Dimensions of box in which rods are initialised
+tMax    = 0.01         # Simulation duration
+boxSize = 1.0         # Dimensions of box in which rods are initialised
 
 main(N,L,σ,ϵ,η,kT,tMax,boxSize)
