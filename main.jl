@@ -31,7 +31,7 @@ function main(N,L,σ,ϵ,η,kT,tMax,boxSize)
     DParallel       = D₀*(log(p)+-0.207+0.980/p-0.133/p^2)/2π
     DPerpendicular  = D₀*(log(p)+0.839+0.185/p+0.233/p^2)/4π
     DRotation       = 3*D₀*(log(p)-0.662+0.917/p-0.05/p^2)/(π*L^2)
-    interactionThresh = L+5.0*σ
+    interactionThresh = 2.0*L
 
     # Create random number generators for each thread
     threadRNG = Vector{Random.MersenneTwister}(undef, nthreads())
@@ -68,9 +68,11 @@ function main(N,L,σ,ϵ,η,kT,tMax,boxSize)
 
         # Sum forces calculated in each thread
         F[:,:,1] = sum(F,dims=3)
+        #println(F[:,:,1])
         τ[:,:,1] = sum(τ,dims=3)
+        #println(τ[:,:,1])
         # Adapt timestep according to force magnitudes
-        Δt = adaptTimestep!(N,F,σ,D₀,kT)
+        Δt = adaptTimestep!(N,F,τ,σ,D₀,kT)
         # Calculate standard deviations for Gaussian noise based on timestep and diffusion constants
         stds = [sqrt(2.0*DParallel*Δt),
                 sqrt(2.0*DPerpendicular*Δt),
@@ -91,16 +93,16 @@ function main(N,L,σ,ϵ,η,kT,tMax,boxSize)
         # Refresh force and moment arrays
         τ .= 0.0
         F .= 0.0
-
     end
+    #run(`python3 visualise.py output"/"$foldername`)
 end
 
 #%%
 
-N       = 2         # Number of rods
+N       = 5         # Number of rods
 L       = 0.5         # Rod length
 σ       = 0.05       # Rod diameter
-ϵ       = 0.000001 # Hard core repulsion L-J potential depth
+ϵ       = 0.1 # Hard core repulsion L-J potential depth
 η       = 1.0         # Solvent shear viscocity
 kT      = 1.0         # Boltzman constant*Temperature
 tMax    = 0.01         # Simulation duration
