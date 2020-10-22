@@ -81,9 +81,9 @@ function main(N,L,σ,ϵ,η,kT,tMax,boxSize)
         brownianMotion!(N,Ω,ξr,ξΩ,E,stds,threadRNG)
 
         # Forward Euler integration of overdamped Langevin equation for position and orientation, given drift and stochastic terms.
-        Ω .+= τ[:,:,1].*Δt .+ ξΩ
+        Ω .+= τ[:,:,1].*Δt #.+ ξΩ
         Ω .= Ω./sqrt.(sum(Ω.^2,dims=2)) # Normalise magnitude
-        r .+= F[:,:,1].*Δt .+ ξr
+        r .+= F[:,:,1].*Δt #.+ ξr
 
         t += Δt
         if t%(tMax/100.0) < Δt
@@ -99,13 +99,13 @@ end
 
 #%%
 
-N       = 5         # Number of rods
-L       = 0.5         # Rod length
-σ       = 0.05       # Rod diameter
-ϵ       = 0.1 # Hard core repulsion L-J potential depth
-η       = 1.0         # Solvent shear viscocity
-kT      = 1.0         # Boltzman constant*Temperature
-tMax    = 0.01         # Simulation duration
-boxSize = 1.0         # Dimensions of box in which rods are initialised
+N       = 2     # Number of rods
+L       = 0.5   # Rod length
+σ       = 0.05  # Rod diameter
+ϵ       = 0.1   # Hard core repulsion L-J potential depth
+η       = 1.0   # Solvent shear viscocity
+kT      = 1.0   # Boltzman constant*Temperature
+tMax    = 0.02  # Simulation duration
+boxSize = 0.5   # Dimensions of box in which rods are initialised
 
 main(N,L,σ,ϵ,η,kT,tMax,boxSize)

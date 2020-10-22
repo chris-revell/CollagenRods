@@ -53,6 +53,8 @@ for i in range(100):
 
     for j in range(N):
       outfile.write("cylinder{{<{},{},{}>,<{},{},{}>,{} texture{{pigment{{color Green}}}}}}\n".format(r1[j,0],r1[j,1],r1[j,2],r2[j,0],r2[j,1],r2[j,2],σ/2.0))
+      outfile.write("sphere{{<{},{},{}>,{} texture{{pigment{{color Blue}}}}}}\n".format(r1[j,0],r1[j,1],r1[j,2],σ))
+      outfile.write("sphere{{<{},{},{}>,{} texture{{pigment{{color Red}}}}}}\n".format(r2[j,0],r2[j,1],r2[j,2],σ))
 
     outfile.close()
     os.system("povray {}/povrayTmp{:03d}.pov +W400 +H300 > /dev/null 2>&1".format(argv[1],i))
