@@ -78,12 +78,12 @@ function main(N,L,σ,ϵ,η,kT,tMax,boxSize)
         brownianMotion!(N,Ω,ξr,ξΩ,E,stds,threadRNG)
 
         # Adapt timestep according to force magnitudes
-        Δt = adaptTimestep!(N,F,τ,ξr,ξΩ,σ,D₀,kT)
+        Δt = adaptTimestep!(N,F,τ,ξr,ξΩ,σ,D₀,kT,L)
 
         # Forward Euler integration of overdamped Langevin equation for position and orientation, given drift and stochastic terms.
-        Ω .+= τ[:,:,1].*Δt #.+ ξΩ.*sqrt(Δt)
+        Ω .+= τ[:,:,1].*Δt .+ ξΩ.*sqrt(Δt)
         Ω .= Ω./sqrt.(sum(Ω.^2,dims=2)) # Normalise magnitude
-        r .+= F[:,:,1].*Δt #.+ ξr.*sqrt(Δt)
+        r .+= F[:,:,1].*Δt .+ ξr.*sqrt(Δt)
 
         t += Δt
         if t%(tMax/100.0) < Δt
