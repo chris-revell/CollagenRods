@@ -17,9 +17,9 @@ using Base.Threads
 @inline function brownianMotion!(N,Ω,ξr,ξΩ,E,stds,RNG)
     @threads for i=1:N
         # Translational component of brownian motion
-        ξr[i,:] .= rand(RNG[threadid()],Normal(0.0,stds[1])).*Ω[i,:] .+ rand(RNG[threadid()],Normal(0.0,stds[2])).*E[i,:,1] .+ rand(RNG[threadid()],Normal(0.0,stds[2])).*E[i,:,2]
+        ξr[i,:] .= stds[1]*rand(RNG[threadid()],Normal(0.0,1.0)).*Ω[i,:] .+ stds[2]*rand(RNG[threadid()],Normal(0.0,1.0)).*E[i,:,1] .+ stds[2]*rand(RNG[threadid()],Normal(0.0,1.0)).*E[i,:,2]
         # Rotational component of brownian motion
-        ξΩ[i,:] .= rand(RNG[threadid()],Normal(0.0,stds[3])).*E[i,:,1] .+ rand(RNG[threadid()],Normal(0.0,stds[3])).*E[i,:,2]
+        ξΩ[i,:] .= stds[3]*rand(RNG[threadid()],Normal(0.0,1.0)).*E[i,:,1] .+ stds[3]*rand(RNG[threadid()],Normal(0.0,1.0)).*E[i,:,2]
     end
     return nothing
 end

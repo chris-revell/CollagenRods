@@ -54,6 +54,14 @@ function main(N,L,σ,ϵ,η,kT,tMax,boxSize)
     foldername = createRunDirectory(N,L,σ,ϵ,p,η,kT,tMax,boxSize,D₀,DParallel,DPerpendicular,DRotation,interactionThresh)
     outfile = open("output/$(foldername)/output.txt","w")
 
+
+    # Calculate standard deviations for Gaussian noise based on timestep and diffusion constants
+    stds = [sqrt(2.0*DParallel),
+            sqrt(2.0*DPerpendicular),
+            sqrt(2.0*DRotation)]
+
+
+
     # Iterate until max run time reached
     t = 0.0 # Initialise system time
     while t < tMax
@@ -66,24 +74,16 @@ function main(N,L,σ,ϵ,η,kT,tMax,boxSize)
         # Calculate attractive and repulsive forces between rods
         interRodForces!(pairsList,N,r,Ω,F,τ,E,A,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ)
 
-        # Sum forces calculated in each thread
-        F[:,:,1] = sum(F,dims=3)
-        #println(F[:,:,1])
-        τ[:,:,1] = sum(τ,dims=3)
-        #println(τ[:,:,1])
-        # Adapt timestep according to force magnitudes
-        Δt = adaptTimestep!(N,F,τ,σ,D₀,kT)
-        # Calculate standard deviations for Gaussian noise based on timestep and diffusion constants
-        stds = [sqrt(2.0*DParallel*Δt),
-                sqrt(2.0*DPerpendicular*Δt),
-                sqrt(2.0*DRotation*Δt)]
         # Calculate stochastic component of Langevin equation
         brownianMotion!(N,Ω,ξr,ξΩ,E,stds,threadRNG)
 
+        # Adapt timestep according to force magnitudes
+        Δt = adaptTimestep!(N,F,τ,ξr,ξΩ,σ,D₀,kT)
+
         # Forward Euler integration of overdamped Langevin equation for position and orientation, given drift and stochastic terms.
-        Ω .+= τ[:,:,1].*Δt #.+ ξΩ
+        Ω .+= τ[:,:,1].*Δt #.+ ξΩ.*sqrt(Δt)
         Ω .= Ω./sqrt.(sum(Ω.^2,dims=2)) # Normalise magnitude
-        r .+= F[:,:,1].*Δt #.+ ξr
+        r .+= F[:,:,1].*Δt #.+ ξr.*sqrt(Δt)
 
         t += Δt
         if t%(tMax/100.0) < Δt
@@ -94,7 +94,7 @@ function main(N,L,σ,ϵ,η,kT,tMax,boxSize)
         τ .= 0.0
         F .= 0.0
     end
-    #run(`python3 visualise.py output"/"$foldername`)
+    run(`python3 visualise.py $("output/"*foldername)`)
 end
 
 #%%
@@ -102,10 +102,10 @@ end
 N       = 2     # Number of rods
 L       = 0.5   # Rod length
 σ       = 0.05  # Rod diameter
-ϵ       = 0.1   # Hard core repulsion L-J potential depth
+ϵ       = 1000.0   # Hard core repulsion L-J potential depth
 η       = 1.0   # Solvent shear viscocity
 kT      = 1.0   # Boltzman constant*Temperature
-tMax    = 0.02  # Simulation duration
-boxSize = 0.5   # Dimensions of box in which rods are initialised
+tMax    = 0.2  # Simulation duration
+boxSize = 0.25   # Dimensions of box in which rods are initialised
 
 main(N,L,σ,ϵ,η,kT,tMax,boxSize)
