@@ -11,13 +11,14 @@ module AdaptTimestep
 using LinearAlgebra
 #using .Threads
 
-@inline function adaptTimestep!(N,F,τ,σ,D,kT)
+@inline function adaptTimestep!(N,F,τ,ξr,ξΩ,σ,D,kT)
 
     Fmax_sq = maximum(sum(F[:,:,1].*F[:,:,1],dims=2))
     τmax_sq = maximum(sum(τ[:,:,1].*τ[:,:,1],dims=2))
+    ξrmax_sq = maximum(sum(ξr.*ξr,dims=2))
+    ξΩmax_sq = maximum(sum(ξΩ.*ξΩ,dims=2))
 
-    dt = min(σ^2/(32*D),σ/sqrt(Fmax_sq),σ/sqrt(τmax_sq))
-    #dt = min(0.00001,kT*σ/(2.0*D*sqrt(Fmax_sq)))
+    dt = min(σ^2/(4.0*ξrmax_sq),σ^2/(4.0*ξΩmax_sq),σ/(2.0*sqrt(Fmax_sq)),σ/(2.0*sqrt(τmax_sq)))
 
     return dt
 

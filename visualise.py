@@ -22,6 +22,7 @@ with open("{}/conditions.txt".format(argv[1])) as f:
 boxSize = float(conditions["boxSize"])
 σ = float(conditions["σ"])
 N = int(conditions["N"])
+L = float(conditions["L"])
 
 for i in range(100):
     #os.system("clear")
@@ -48,8 +49,8 @@ for i in range(100):
     r = data[i*N*2:i*N*2+N,:]
     Ω = data[i*N*2+N:(i+1)*N*2,:]
 
-    r1 = r - Ω/2.0
-    r2 = r + Ω/2.0
+    r1 = r - L*Ω/2.0
+    r2 = r + L*Ω/2.0
 
     for j in range(N):
       outfile.write("cylinder{{<{},{},{}>,<{},{},{}>,{} texture{{pigment{{color Green}}}}}}\n".format(r1[j,0],r1[j,1],r1[j,2],r2[j,0],r2[j,1],r2[j,2],σ/2.0))
