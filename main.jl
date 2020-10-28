@@ -31,7 +31,7 @@ function main(N,L,σ,ϵ,η,kT,tMax,boxSize)
     DParallel       = D₀*(log(p)+-0.207+0.980/p-0.133/p^2)/2π
     DPerpendicular  = D₀*(log(p)+0.839+0.185/p+0.233/p^2)/4π
     DRotation       = 3*D₀*(log(p)-0.662+0.917/p-0.05/p^2)/(π*L^2)
-    interactionThresh = 2.0*L
+    interactionThresh = 1.3*L
 
     # Create random number generators for each thread
     threadRNG = Vector{Random.MersenneTwister}(undef, nthreads())
@@ -71,6 +71,7 @@ function main(N,L,σ,ϵ,η,kT,tMax,boxSize)
 
         # Find perpendicular basis vectors for each rod
         orthonormalBases!(N,Ω,E)
+
         # Calculate attractive and repulsive forces between rods
         interRodForces!(pairsList,N,r,Ω,F,τ,E,A,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ)
 
@@ -99,13 +100,13 @@ end
 
 #%%
 
-N       = 2     # Number of rods
+N       = 10     # Number of rods
 L       = 0.5   # Rod length
-σ       = 0.05  # Rod diameter
-ϵ       = 1000.0   # Hard core repulsion L-J potential depth
+σ       = 0.005  # Rod diameter
+ϵ       = 100.0   # Hard core repulsion L-J potential depth
 η       = 1.0   # Solvent shear viscocity
 kT      = 1.0   # Boltzman constant*Temperature
-tMax    = 0.2  # Simulation duration
-boxSize = 0.25   # Dimensions of box in which rods are initialised
+tMax    = 0.1  # Simulation duration
+boxSize = 0.5   # Dimensions of box in which rods are initialised
 
 main(N,L,σ,ϵ,η,kT,tMax,boxSize)

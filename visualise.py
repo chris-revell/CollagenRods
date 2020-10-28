@@ -58,7 +58,7 @@ for i in range(100):
       outfile.write("sphere{{<{},{},{}>,{} texture{{pigment{{color Red}}}}}}\n".format(r2[j,0],r2[j,1],r2[j,2],σ))
 
     outfile.close()
-    os.system("povray {}/povrayTmp{:03d}.pov +W400 +H300 > /dev/null 2>&1".format(argv[1],i))
+    os.system("povray {}/povrayTmp{:03d}.pov +W800 +H600 > /dev/null 2>&1".format(argv[1],i))
     os.system("rm {}/povrayTmp{:03d}.pov".format(argv[1],i))
 
 os.system("convert -delay 10 -loop 0 {}/povrayTmp*.png {}/animated.gif".format(argv[1],argv[1]))

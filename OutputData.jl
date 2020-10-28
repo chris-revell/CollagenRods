@@ -16,7 +16,6 @@ using LinearAlgebra
     writedlm(outfile,r,", ")
     writedlm(outfile,Ω,", ")
     flush(outfile)
-    #run(`clear`)
     println("Simulating: $t/$tMax")
 
     return nothing
