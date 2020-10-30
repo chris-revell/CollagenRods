@@ -11,7 +11,7 @@ module AdaptTimestep
 using LinearAlgebra
 #using .Threads
 
-@inline function adaptTimestep!(N,F,τ,ξr,ξΩ,σ,D,kT,L)
+@inline function adaptTimestep!(N,F,τ,ξr,ξΩ,σ,kT,L)
 
     Fmax_sq = maximum(sum(F[:,:,1].*F[:,:,1],dims=2))
     τmax_sq = maximum(sum(τ[:,:,1].*τ[:,:,1],dims=2))

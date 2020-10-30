@@ -13,11 +13,11 @@ include("./ShortestDistance.jl")
 using .ShortestDistance
 using Base.Threads
 
-@inline function interRodForces!(pairsList,N,r,Ω,F,τ,E,A,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ)
+@inline function interRodForces!(pairsList,N,r,Ω,F,τ,E,A,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q)
 
-    k₀ = 1.0
-    ϵ₀ = 1.0
-    Q  = 10.0
+    #k₀ = 1.0
+    #ϵ₀ = 1.0
+    #Q  = 10.0
 
     @threads for (x,y) in pairsList
 
