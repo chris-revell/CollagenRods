@@ -23,7 +23,7 @@ using .OutputData
 
 #%%
 
-function main(N,L,σ,ϵ,Q,η,kT,tMax,boxSize)
+function main(N,L,σ,ϵ,Q,tMax,boxSize)
 
     η               = 1.0   # Solvent shear viscocity
     kT              = 1.0   # Boltzman constant*Temperature
@@ -55,10 +55,10 @@ function main(N,L,σ,ϵ,Q,η,kT,tMax,boxSize)
 
     foldername = createRunDirectory(N,L,σ,ϵ,p,η,kT,tMax,boxSize,D₀,DParallel,DPerpendicular,DRotation,interactionThresh)
     outfile = open("output/$(foldername)/output.txt","w")
+    outputData(r,Ω,outfile,0,tMax)
 
     # Iterate until max run time reached
     t = 0.0 # Initialise system time
-    outputData(r,Ω,outfile,t,tMax)
     while t < tMax
 
         # Create list of particle interaction pairs based on cell lists algorithm
@@ -100,8 +100,8 @@ N       = 20     # Number of rods
 L       = 0.5   # Rod length
 σ       = 0.005  # Rod diameter
 ϵ       = 100.0   # Hard core repulsion L-J potential depth
-Q  = 10.0
-tMax    = 0.1  # Simulation duration
+Q       = 0.0
+tMax    = 0.001  # Simulation duration
 boxSize = 1.0   # Dimensions of box in which rods are initialised
 
-main(N,L,σ,ϵ,Q,η,kT,tMax,boxSize)
+main(N,L,σ,ϵ,Q,tMax,boxSize)

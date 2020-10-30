@@ -9,10 +9,10 @@
 module ShortestDistance
 
 using LinearAlgebra
-include("./ShortestPointToRod.jl")
-using .ShortestPointToRod
+#include("./ShortestPointToRod.jl")
+#using .ShortestPointToRod
 
-@inline function shortestDistance!(r,Ω,rᵢⱼ,i,j,L)
+@inline function shortestRodToRod!(r,Ω,rᵢⱼ,i,j,L)
     # Algorithm from Vega, Lago 1994
     rᵢⱼ .= r[j,:] .- r[i,:]
     λᵢ = (rᵢⱼ⋅Ω[i,:] - (Ω[i,:]⋅Ω[j,:])*(rᵢⱼ⋅Ω[j,:]))/(1.0-(Ω[i,:]⋅Ω[j,:])^2)
@@ -53,6 +53,29 @@ using .ShortestPointToRod
     return (μ,λ)
 end
 
-export shortestDistance!
+@inline function shortestPointToRod(x₀,r,Ω,L)
+    # Algorithm from https://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
+    # Returns 3 vector location of point on rod with centrepoint r, length L, and orientation Ω that is closest to point x₀
+
+    x₁ = r .- (L/2.0).*Ω
+    x₂ = r .+ (L/2.0).*Ω
+    Δx = Ω.*L
+
+    t = -(x₁.-x₀)⋅Δx/(Δx⋅Δx)
+
+    if t<0
+        t = 0 #P₂ = r .- (L/2.0).*Ω
+    elseif t>1
+        t = 1 #P₂ = r .+ (L/2.0).*Ω
+    else
+        t = t #P₂ = r .- (L/2.0).*Ω .+ t.*Δj
+    end
+
+    return t
+
+end
+
+export shortestPointToRod
+export shortestRodToRod!
 
 end
