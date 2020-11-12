@@ -23,7 +23,7 @@ using .OutputData
 
 #%%
 
-function main(N,L,σ,ϵ,Q,tMax,boxSize)
+function main(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
 
     η               = 1.0   # Solvent shear viscocity
     kT              = 1.0   # Boltzman constant*Temperature
@@ -53,9 +53,11 @@ function main(N,L,σ,ϵ,Q,tMax,boxSize)
     pairsList = Tuple{Int64, Int64}[]      # Array storing tuple of particle interaction pairs eg pairsList[2]=(1,5) => 2nd element of array shows that particles 1 and 5 are in interaction range
     neighbourCells = Vector{Tuple{Int64,Int64,Int64}}(undef, 13) # Vector storing 13 neighbouring cells for a given cell
 
-    foldername = createRunDirectory(N,L,σ,ϵ,p,η,kT,tMax,boxSize,D₀,DParallel,DPerpendicular,DRotation,interactionThresh)
-    outfile = open("output/$(foldername)/output.txt","w")
-    outputData(r,Ω,outfile,0,tMax)
+    if outputToggle==1
+        foldername = createRunDirectory(N,L,σ,ϵ,p,η,kT,tMax,boxSize,D₀,DParallel,DPerpendicular,DRotation,interactionThresh)
+        outfile = open("output/$(foldername)/output.txt","w")
+        outputData(r,Ω,outfile,0,tMax)
+    end
 
     # Iterate until max run time reached
     t = 0.0 # Initialise system time
@@ -83,7 +85,7 @@ function main(N,L,σ,ϵ,Q,tMax,boxSize)
 
         t += Δt
 
-        if t%(tMax/100.0) < Δt
+        if t%(tMax/100.0) < Δt && outputToggle==1
             outputData(r,Ω,outfile,t,tMax)
         end
 
@@ -91,17 +93,21 @@ function main(N,L,σ,ϵ,Q,tMax,boxSize)
         τ .= 0.0
         F .= 0.0
     end
-    run(`python3 visualise.py $("output/"*foldername)`)
+    if outputToggle==1
+        run(`python3 visualise.py $("output/"*foldername)`)
+    end
 end
 
 #%%
 
-N       = 20     # Number of rods
-L       = 0.5   # Rod length
-σ       = 0.005  # Rod diameter
-ϵ       = 100.0   # Hard core repulsion L-J potential depth
-Q       = 0.0
-tMax    = 0.001  # Simulation duration
-boxSize = 1.0   # Dimensions of box in which rods are initialised
+const N       = 10     # Number of rods
+const L       = 0.5   # Rod length
+const σ       = 0.005  # Rod diameter
+const ϵ       = 1000.0   # Hard core repulsion L-J potential depth
+const Q       = 10.0
+const tMax    = 0.001  # Simulation duration
+const boxSize = 1.0   # Dimensions of box in which rods are initialised
 
-main(N,L,σ,ϵ,Q,tMax,boxSize)
+main(2,L,L/5,ϵ/100.0,Q,tMax/100.0,boxSize,0)
+
+main(N,L,σ,ϵ,Q,tMax,boxSize,1)
