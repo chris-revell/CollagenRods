@@ -79,9 +79,9 @@ function main(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
         Δt = adaptTimestep!(N,F,τ,ξr,ξΩ,σ,kT,L)
 
         # Forward Euler integration of overdamped Langevin equation for position and orientation, given drift and stochastic terms.
-        Ω .+= τ[:,:,1].*Δt .+ ξΩ.*sqrt(Δt)
+        Ω .+= view(τ,:,:,1).*Δt .+ ξΩ.*sqrt(Δt)
         Ω .= Ω./sqrt.(sum(Ω.^2,dims=2)) # Normalise magnitude
-        r .+= F[:,:,1].*Δt .+ ξr.*sqrt(Δt)
+        r .+= view(F,:,:,1).*Δt .+ ξr.*sqrt(Δt)
 
         t += Δt
 

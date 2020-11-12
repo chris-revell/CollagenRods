@@ -9,14 +9,12 @@
 module ShortestDistance
 
 using LinearAlgebra
-#include("./ShortestPointToRod.jl")
-#using .ShortestPointToRod
 
 @inline function shortestRodToRod!(r,Ω,rᵢⱼ,i,j,L)
     # Algorithm from Vega, Lago 1994
-    rᵢⱼ .= r[j,:] .- r[i,:]
-    λᵢ = (rᵢⱼ⋅Ω[i,:] - (Ω[i,:]⋅Ω[j,:])*(rᵢⱼ⋅Ω[j,:]))/(1.0-(Ω[i,:]⋅Ω[j,:])^2)
-    μⱼ = ((Ω[i,:]⋅Ω[j,:])*(rᵢⱼ⋅Ω[i,:]) - rᵢⱼ⋅Ω[j,:])/(1.0-(Ω[i,:]⋅Ω[j,:])^2)
+    rᵢⱼ .= view(r,j,:) .- view(r,i,:)
+    λᵢ = (rᵢⱼ⋅view(Ω,i,:) - (view(Ω,i,:)⋅view(Ω,j,:))*(rᵢⱼ⋅view(Ω,j,:)))/(1.0-(view(Ω,i,:)⋅view(Ω,j,:))^2)
+    μⱼ = ((view(Ω,i,:)⋅view(Ω,j,:))*(rᵢⱼ⋅view(Ω,i,:)) - rᵢⱼ⋅view(Ω,j,:))/(1.0-(view(Ω,i,:)⋅view(Ω,j,:))^2)
 
     if -L/2.0 <= λᵢ <= L/2.0 && -L/2.0 <= μⱼ <= L/2.0
         # Shortest path is within length of rods and not from an end of either rod
@@ -28,28 +26,28 @@ using LinearAlgebra
         if 0 < θ <= π/2.0
             # Region 1
             μ = L/2.0
-            Pⱼ = r[j,:].+μ.*Ω[j,:]
+            Pⱼ = view(r,j,:).+μ.*view(Ω,j,:)
             t = shortestPointToRod(Pⱼ,r[i,:],Ω[i,:],L)
             λ = (t-0.5)*L
         elseif π/2.0 < θ <= π
             λ = L/2.0
-            Pᵢ = r[i,:] .+ λ.*Ω[i,:]
+            Pᵢ = view(r,i,:) .+ λ.*view(Ω,i,:)
             t = shortestPointToRod(Pᵢ,r[j,:],Ω[j,:],L)
             μ = (t-0.5)*L
         elseif π < θ <= 3.0*π/2.0
             μ = -L/2.0
-            Pⱼ = r[j,:].+μ.*Ω[j,:]
+            Pⱼ = view(r,j,:).+μ.*view(Ω,j,:)
             t = shortestPointToRod(Pⱼ,r[i,:],Ω[i,:],L)
             λ = (t-0.5)*L
         else
             λ = -L/2.0
-            Pᵢ = r[i,:] .+ λ.*Ω[i,:]
+            Pᵢ = view(r,i,:) .+ λ.*view(Ω,i,:)
             t = shortestPointToRod(Pᵢ,r[j,:],Ω[j,:],L)
             μ = (t-0.5)*L
         end
     end
 
-    rᵢⱼ .+= (μ.*Ω[j,:] .- λ.*Ω[i,:])
+    rᵢⱼ .+= (μ.*view(Ω,j,:) .- λ.*view(Ω,i,:))
     return (μ,λ)
 end
 
