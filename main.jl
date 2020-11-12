@@ -35,6 +35,8 @@ function main(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
     DRotation       = 3*D₀*(log(p)-0.662+0.917/p-0.05/p^2)/(π*L^2)
     interactionThresh = 1.3*L
 
+    realTimePlotToggle = 1
+
     # Create random number generators for each thread
     threadRNG = Vector{Random.MersenneTwister}(undef, nthreads())
     for i in 1:nthreads()
@@ -50,6 +52,7 @@ function main(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
     ξΩ = zeros(Float64,N,3)                # Rotational stochastic component
     E  = zeros(Float64,N,3,2)              # Matrix for orthonormal bases
     A  = zeros(Float64,3,nthreads())       # Matric of dummy vectors for later calculations
+    rᵢⱼ = zeros(Float64,3,nthreads())
     pairsList = Tuple{Int64, Int64}[]      # Array storing tuple of particle interaction pairs eg pairsList[2]=(1,5) => 2nd element of array shows that particles 1 and 5 are in interaction range
     neighbourCells = Vector{Tuple{Int64,Int64,Int64}}(undef, 13) # Vector storing 13 neighbouring cells for a given cell
 
@@ -57,6 +60,9 @@ function main(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
         foldername = createRunDirectory(N,L,σ,ϵ,p,η,kT,tMax,boxSize,D₀,DParallel,DPerpendicular,DRotation,interactionThresh)
         outfile = open("output/$(foldername)/output.txt","w")
         outputData(r,Ω,outfile,0,tMax)
+        if realTimePlotToggle = 1
+            run(`python3 visualiseSingle.py $("output/"*foldername)`)
+        end
     end
 
     # Iterate until max run time reached
@@ -70,7 +76,7 @@ function main(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
         orthonormalBases!(N,Ω,E)
 
         # Calculate attractive and repulsive forces between rods
-        interRodForces!(pairsList,N,r,Ω,F,τ,E,A,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q)
+        interRodForces!(pairsList,N,r,Ω,F,τ,E,A,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q,rᵢⱼ)
 
         # Calculate stochastic component of Langevin equation
         brownianMotion!(N,Ω,ξr,ξΩ,E,DParallel,DPerpendicular,DRotation,threadRNG)
@@ -87,6 +93,9 @@ function main(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
 
         if t%(tMax/100.0) < Δt && outputToggle==1
             outputData(r,Ω,outfile,t,tMax)
+            if realTimePlotToggle = 1
+                run(`python3 visualiseSingle.py $("output/"*foldername)`)
+            end 
         end
 
         # Refresh force and moment arrays
@@ -94,7 +103,9 @@ function main(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
         F .= 0.0
     end
     if outputToggle==1
-        run(`python3 visualise.py $("output/"*foldername)`)
+        if realTimePlotToggle != 1
+            run(`python3 visualise.py $("output/"*foldername)`)
+        end
     end
 end
 
@@ -105,7 +116,7 @@ const L       = 0.5   # Rod length
 const σ       = 0.005  # Rod diameter
 const ϵ       = 1000.0   # Hard core repulsion L-J potential depth
 const Q       = 10.0
-const tMax    = 0.001  # Simulation duration
+const tMax    = 0.0005  # Simulation duration
 const boxSize = 1.0   # Dimensions of box in which rods are initialised
 
 main(2,L,L/5,ϵ/100.0,Q,tMax/100.0,boxSize,0)
