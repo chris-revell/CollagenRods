@@ -41,7 +41,7 @@ for i in range(nImages):
     outfile.write("}\n")
     outfile.write("global_settings { ambient_light White }\n")
     outfile.write("light_source {\n" )
-    outfile.write("  <{},{},{}>   \n".format(boxSize*11,-boxSize*2,boxSize*2))
+    outfile.write("  <{},{},{}>   \n".format(boxSize*15,-boxSize*2,boxSize*2))
     outfile.write("  color White \n")
     outfile.write("}\n")
     outfile.write("background { color White }\n" )
@@ -60,8 +60,8 @@ for i in range(nImages):
       outfile.write("sphere{{<{},{},{}>,{} texture{{pigment{{color Red}}}}}}\n".format(r2[j,0],r2[j,1],r2[j,2],σ))
 
     outfile.close()
-    os.system("povray {}/povrayTmp{:03d}.pov +W1600 +H1200 > /dev/null 2>&1".format(argv[1],i))
+    os.system("povray {}/povrayTmp{:03d}.pov +W1600 +H1600 > /dev/null 2>&1".format(argv[1],i))
     os.system("rm {}/povrayTmp{:03d}.pov".format(argv[1],i))
 
 os.system("convert -delay 10 -loop 0 {}/povrayTmp*.png {}/animated.gif".format(argv[1],argv[1]))
-os.system("rm {}/*.png".format(argv[1]))
+#os.system("rm {}/*.png".format(argv[1]))
