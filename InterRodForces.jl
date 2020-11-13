@@ -15,7 +15,7 @@ include("./LennardJones.jl")
 using .LennardJones
 using Base.Threads
 
-@inline function interRodForces!(pairsList,N,r,Ω,F,τ,E,A,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q,rᵢⱼ)
+@inline function interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q)
 
     #k₀ = 1.0
     #ϵ₀ = 1.0

@@ -3,6 +3,7 @@ using Random
 using Distributions
 #using Plots
 using Base.Threads
+using StaticArrays
 
 include("./OrthonormalBases.jl")
 using .OrthonormalBases
@@ -43,18 +44,17 @@ function main(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
         threadRNG[i] = Random.MersenneTwister()
     end
 
-    r  = (rand(Float64,N,3).-0.5).*boxSize # Random initial centrepoint positions of all rods
-    Ω  = rand(Float64,N,3).*2.0.-1.0       # Random initial orientations of all rods
+    r  = SizedArray{Tuple{N,3}}((rand(Float64,N,3).-0.5).*boxSize) # Random initial centrepoint positions of all rods
+    Ω  = SizedArray{Tuple{N,3}}(rand(Float64,N,3).*2.0.-1.0)       # Random initial orientations of all rods
     Ω .= Ω./sqrt.(sum(Ω.^2,dims=2))        # Normalise magnitude
-    τ  = zeros(Float64,N,3,nthreads())     # Moments on each rod
-    F  = zeros(Float64,N,3,nthreads())     # Forces on each rod
-    ξr = zeros(Float64,N,3)                # Translational stochastic component
-    ξΩ = zeros(Float64,N,3)                # Rotational stochastic component
-    E  = zeros(Float64,N,3,2)              # Matrix for orthonormal bases
-    A  = zeros(Float64,3,nthreads())       # Matric of dummy vectors for later calculations
-    rᵢⱼ = zeros(Float64,3,nthreads())
+    τ  = SizedArray{Tuple{N,3,nthreads()}}(zeros(Float64,N,3,nthreads()))     # Moments on each rod
+    F  = SizedArray{Tuple{N,3,nthreads()}}(zeros(Float64,N,3,nthreads()))     # Forces on each rod
+    ξr = SizedArray{Tuple{N,3}}(zeros(Float64,N,3))                # Translational stochastic component
+    ξΩ = SizedArray{Tuple{N,3}}(zeros(Float64,N,3))                # Rotational stochastic component
+    E  = SizedArray{Tuple{N,3,2}}(zeros(Float64,N,3,2))              # Matrix for orthonormal bases
+    rᵢⱼ= SizedArray{Tuple{3,nthreads()}}(zeros(Float64,3,nthreads()))       # Matric of dummy vectors for later calculations
     pairsList = Tuple{Int64, Int64}[]      # Array storing tuple of particle interaction pairs eg pairsList[2]=(1,5) => 2nd element of array shows that particles 1 and 5 are in interaction range
-    neighbourCells = Vector{Tuple{Int64,Int64,Int64}}(undef, 13) # Vector storing 13 neighbouring cells for a given cell
+    neighbourCells = MVector{13}(Vector{Tuple{Int64,Int64,Int64}}(undef, 13)) # Vector storing 13 neighbouring cells for a given cell
 
     if outputToggle==1
         foldername = createRunDirectory(N,L,σ,ϵ,p,η,kT,tMax,boxSize,D₀,DParallel,DPerpendicular,DRotation,interactionThresh)
@@ -76,7 +76,7 @@ function main(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
         orthonormalBases!(N,Ω,E)
 
         # Calculate attractive and repulsive forces between rods
-        interRodForces!(pairsList,N,r,Ω,F,τ,E,A,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q,rᵢⱼ)
+        interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q)
 
         # Calculate stochastic component of Langevin equation
         brownianMotion!(N,Ω,ξr,ξΩ,E,DParallel,DPerpendicular,DRotation,threadRNG)
@@ -111,12 +111,12 @@ end
 
 #%%
 
-const N       = 10     # Number of rods
+const N       = 100     # Number of rods
 const L       = 0.5   # Rod length
 const σ       = 0.005  # Rod diameter
 const ϵ       = 1.0   # Hard core repulsion L-J potential depth
 const Q       = 1000.0
-const tMax    = 0.0001  # Simulation duration
+const tMax    = 0.00001  # Simulation duration
 const boxSize = 1.0   # Dimensions of box in which rods are initialised
 
 main(2,L,L/5,ϵ/100.0,Q,tMax/100.0,boxSize,0)
