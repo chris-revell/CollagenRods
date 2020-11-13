@@ -35,7 +35,7 @@ for i in range(nImages):
     outfile.write("  sky <0,0,1>           \n")
     outfile.write("  direction <-1,0,0>      \n")
     outfile.write("  right <-4/3,0,0>      \n")
-    outfile.write("  location <{},{},{}> \n".format(boxSize*10,boxSize*2,boxSize*2))
+    outfile.write("  location <{},{},{}> \n".format(boxSize*5,boxSize*2,boxSize*2))
     outfile.write("  look_at <0.,0.,0.>     \n" )
     outfile.write("  angle 15      \n")
     outfile.write("}\n")
@@ -56,11 +56,11 @@ for i in range(nImages):
 
     for j in range(N):
       outfile.write("cylinder{{<{},{},{}>,<{},{},{}>,{} texture{{pigment{{color Green}}}}}}\n".format(r1[j,0],r1[j,1],r1[j,2],r2[j,0],r2[j,1],r2[j,2],σ/2.0))
-      outfile.write("sphere{{<{},{},{}>,{} texture{{pigment{{color Blue}}}}}}\n".format(r1[j,0],r1[j,1],r1[j,2],σ))
-      outfile.write("sphere{{<{},{},{}>,{} texture{{pigment{{color Red}}}}}}\n".format(r2[j,0],r2[j,1],r2[j,2],σ))
+      outfile.write("sphere{{<{},{},{}>,{} texture{{pigment{{color Blue}}}}}}\n".format(r1[j,0],r1[j,1],r1[j,2],σ/2.0))
+      outfile.write("sphere{{<{},{},{}>,{} texture{{pigment{{color Red}}}}}}\n".format(r2[j,0],r2[j,1],r2[j,2],σ/2.0))
 
     outfile.close()
-    os.system("povray {}/povrayTmp{:03d}.pov +W1600 +H1600 > /dev/null 2>&1".format(argv[1],i))
+    os.system("povray {}/povrayTmp{:03d}.pov +W800 +H800 > /dev/null 2>&1".format(argv[1],i))
     os.system("rm {}/povrayTmp{:03d}.pov".format(argv[1],i))
 
 os.system("convert -delay 10 -loop 0 {}/povrayTmp*.png {}/animated.gif".format(argv[1],argv[1]))

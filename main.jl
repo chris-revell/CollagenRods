@@ -35,7 +35,7 @@ function main(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
     DRotation       = 3*D₀*(log(p)-0.662+0.917/p-0.05/p^2)/(π*L^2)
     interactionThresh = 1.3*L
 
-    realTimePlotToggle = 1
+    realTimePlotToggle = 0
 
     # Create random number generators for each thread
     threadRNG = Vector{Random.MersenneTwister}(undef, nthreads())
@@ -60,7 +60,7 @@ function main(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
         foldername = createRunDirectory(N,L,σ,ϵ,p,η,kT,tMax,boxSize,D₀,DParallel,DPerpendicular,DRotation,interactionThresh)
         outfile = open("output/$(foldername)/output.txt","w")
         outputData(r,Ω,outfile,0,tMax)
-        if realTimePlotToggle = 1
+        if realTimePlotToggle == 1
             run(`python3 visualiseSingle.py $("output/"*foldername)`)
         end
     end
@@ -93,9 +93,9 @@ function main(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
 
         if t%(tMax/100.0) < Δt && outputToggle==1
             outputData(r,Ω,outfile,t,tMax)
-            if realTimePlotToggle = 1
+            if realTimePlotToggle == 1
                 run(`python3 visualiseSingle.py $("output/"*foldername)`)
-            end 
+            end
         end
 
         # Refresh force and moment arrays
@@ -114,9 +114,9 @@ end
 const N       = 10     # Number of rods
 const L       = 0.5   # Rod length
 const σ       = 0.005  # Rod diameter
-const ϵ       = 1000.0   # Hard core repulsion L-J potential depth
-const Q       = 10.0
-const tMax    = 0.0005  # Simulation duration
+const ϵ       = 1.0   # Hard core repulsion L-J potential depth
+const Q       = 1000.0
+const tMax    = 0.0001  # Simulation duration
 const boxSize = 1.0   # Dimensions of box in which rods are initialised
 
 main(2,L,L/5,ϵ/100.0,Q,tMax/100.0,boxSize,0)
