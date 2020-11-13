@@ -19,7 +19,7 @@ using Base.Threads
 
     #k₀ = 1.0
     #ϵ₀ = 1.0
-    #Q  = 10.0    
+    #Q  = 10.0
 
     @threads for (x,y) in pairsList
 
@@ -34,7 +34,7 @@ using Base.Threads
         # If shortest distance is less than rod radius, calculate hard core repulsion
         if rMag < σ
             FMag  = lennardJones(rMag,ϵ,σ)
-            view(rᵢⱼ,:,threadid()) .*= FMag/rMag
+            rᵢⱼ[:,threadid()] .*= FMag/rMag
             # Linear forces acting on rods x and y using orthonormal basis vectors
             F[x,:,threadid()] .+= (DPerpendicular/kT)*((view(rᵢⱼ,:,threadid())⋅view(E,x,:,1)).*view(E,x,:,1) .+ (view(rᵢⱼ,:,threadid())⋅view(E,x,:,2)).*view(E,x,:,2)) .+ (DParallel/kT)*(view(rᵢⱼ,:,threadid())⋅view(Ω,x,:)).*view(Ω,x,:)
             F[y,:,threadid()] .-= (DPerpendicular/kT)*((view(rᵢⱼ,:,threadid())⋅view(E,y,:,1)).*view(E,y,:,1) .+ (view(rᵢⱼ,:,threadid())⋅view(E,y,:,2)).*view(E,y,:,2)) .+ (DParallel/kT)*(view(rᵢⱼ,:,threadid())⋅view(Ω,y,:)).*view(Ω,y,:)
@@ -45,25 +45,29 @@ using Base.Threads
 
 
         # ---- Electrostatic ----
-        for i=-5:5
-            μ = i*L/10.0
-            for j=-5:5
-                λ = i*L/10.0
-                if rMag > σ
-                    view(rᵢⱼ,:,threadid()) .= view(r,y,:) .- view(r,x,:) .+ μ.*view(Ω,y,:) .- λ.*view(Ω,x,:)
-                    rMag = sqrt(view(rᵢⱼ,:,threadid())⋅view(rᵢⱼ,:,threadid()))
-                    FMag  = Q/(4*π*rMag^2)
-                    view(rᵢⱼ,:,threadid()) .*= FMag/rMag
-                    # Linear forces acting on rods x and y using orthonormal basis vectors
-                    F[x,:,threadid()] .+= (DPerpendicular/kT)*((view(rᵢⱼ,:,threadid())⋅view(E,x,:,1)).*view(E,x,:,1) .+ (view(rᵢⱼ,:,threadid())⋅view(E,x,:,2)).*view(E,x,:,2)) .+ (DParallel/kT)*(view(rᵢⱼ,:,threadid())⋅view(Ω,x,:)).*view(Ω,x,:)
-                    F[y,:,threadid()] .-= (DPerpendicular/kT)*((view(rᵢⱼ,:,threadid())⋅view(E,y,:,1)).*view(E,y,:,1) .+ (view(rᵢⱼ,:,threadid())⋅view(E,y,:,2)).*view(E,y,:,2)) .+ (DParallel/kT)*(view(rᵢⱼ,:,threadid())⋅view(Ω,y,:)).*view(Ω,y,:)
-                    # Moments on rods x and y
-                    τ[x,:,threadid()] .+= (DRotation/kT).*((λ.*view(Ω,x,:))×view(rᵢⱼ,:,threadid()))×view(Ω,x,:)
-                    τ[y,:,threadid()] .-= (DRotation/kT).*((μ.*view(Ω,y,:))×view(rᵢⱼ,:,threadid()))×view(Ω,y,:)
-                end
+        colouredWidth = L/10
+        blackWidth    = L/(2*8)
+
+        electrostaticPairs = [(1,3),(2,4),(3,5),(4,6),(5,7),(6,8),(7,9),(9,1)]
+
+        for (i,j) in electrostaticPairs
+            μ = (i-5)*colouredWidth/2.0 + (i-5)*blackWidth/2.0
+            λ = (j-5)*colouredWidth/2.0 + (j-5)*blackWidth/2.0
+
+            rᵢⱼ[:,threadid()] .= view(r,y,:) .- view(r,x,:) .+ μ.*view(Ω,y,:) .- λ.*view(Ω,x,:)
+            rMag = sqrt(view(rᵢⱼ,:,threadid())⋅view(rᵢⱼ,:,threadid()))
+
+            if rMag > σ
+                FMag  = Q/(4*π*rMag^2)
+                rᵢⱼ[:,threadid()] .*= FMag/rMag
+                # Linear forces acting on rods x and y using orthonormal basis vectors
+                F[x,:,threadid()] .+= (DPerpendicular/kT)*((view(rᵢⱼ,:,threadid())⋅view(E,x,:,1)).*view(E,x,:,1) .+ (view(rᵢⱼ,:,threadid())⋅view(E,x,:,2)).*view(E,x,:,2)) .+ (DParallel/kT)*(view(rᵢⱼ,:,threadid())⋅view(Ω,x,:)).*view(Ω,x,:)
+                F[y,:,threadid()] .-= (DPerpendicular/kT)*((view(rᵢⱼ,:,threadid())⋅view(E,y,:,1)).*view(E,y,:,1) .+ (view(rᵢⱼ,:,threadid())⋅view(E,y,:,2)).*view(E,y,:,2)) .+ (DParallel/kT)*(view(rᵢⱼ,:,threadid())⋅view(Ω,y,:)).*view(Ω,y,:)
+                # Moments on rods x and y
+                τ[x,:,threadid()] .+= (DRotation/kT).*((λ.*view(Ω,x,:))×view(rᵢⱼ,:,threadid()))×view(Ω,x,:)
+                τ[y,:,threadid()] .-= (DRotation/kT).*((μ.*view(Ω,y,:))×view(rᵢⱼ,:,threadid()))×view(Ω,y,:)
             end
         end
-
 
 
         # ---- Covalent Forces ----
