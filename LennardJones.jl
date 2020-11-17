@@ -11,7 +11,7 @@ module LennardJones
 using DelimitedFiles
 using LinearAlgebra
 
-@inline function lennardJones(r,ϵ,σ)
+@inline @views function lennardJones(r,ϵ,σ)
 
     F = 24.0*ϵ*((σ^6.0)/(r^7.0) - 2.0*(σ^12.0)/(r^13.0))
 
