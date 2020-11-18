@@ -11,16 +11,15 @@ module Initialise
 using LinearAlgebra
 using StaticArrays
 using Random
-include("./OutputData.jl")
-using .OutputData
+using OutputData
 
 @inline @views function initialise!(N,r,Ω,boxSize,threadRNG,nthreads,outputToggle)
-    Random.seed!(3)
+
     # Create random number generators for each thread
     for i in 1:nthreads
-        threadRNG[i] = Random.MersenneTwister(3)
+        threadRNG[i] = Random.MersenneTwister()
     end
-
+    
     # Initialise random rod positions
     for i=1:N
         r[i] = SVector{3}((rand(threadRNG[1],Float64,3).-0.5).*boxSize)

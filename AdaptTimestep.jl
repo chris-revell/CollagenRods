@@ -9,7 +9,7 @@
 module AdaptTimestep
 
 using LinearAlgebra
-#using .Threads
+#using Threads
 
 @inline @views function adaptTimestep!(N,F,τ,ξr,ξΩ,σ,kT,L)
 

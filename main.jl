@@ -1,28 +1,19 @@
 using LinearAlgebra
 using Random
 using Distributions
-#using Plots
 using Base.Threads
 using StaticArrays
 
-include("./OrthonormalBases.jl")
-using .OrthonormalBases
-include("./InterRodForces.jl")
-using .InterRodForces
-include("./BrownianMotion.jl")
-using .BrownianMotion
-include("./VisualiseStep.jl")
-using .VisualiseStep
-include("./AdaptTimestep.jl")
-using .AdaptTimestep
-include("./CellListFunctions.jl")
-using .CellListFunctions
-include("./OutputData.jl")
-using .OutputData
-include("./Initialise.jl")
-using .Initialise
-include("./CreateRunDirectory.jl")
-using .CreateRunDirectory
+push!(LOAD_PATH, "./")
+
+using OrthonormalBases
+using InterRodForces
+using BrownianMotion
+using AdaptTimestep
+using CellListFunctions
+using OutputData
+using Initialise
+using CreateRunDirectory
 
 #%%
 
@@ -81,8 +72,8 @@ using .CreateRunDirectory
 
         # Forward Euler integration of overdamped Langevin equation for position and orientation, given drift and stochastic terms.
         for i=1:N
-            Ω[i] = Ω[i] .+ τ[i,:,1].*Δt .+ ξΩ[i].*sqrt(Δt)
-            Ω[i] = Ω[i]./sqrt(Ω[i]⋅Ω[i])
+            #Ω[i] = Ω[i] .+ τ[i,:,1].*Δt .+ #ξΩ[i].*sqrt(Δt)
+            #Ω[i] = Ω[i]./sqrt(Ω[i]⋅Ω[i])
             r[i] = r[i] .+ F[i,:,1].*Δt .+ ξr[i].*sqrt(Δt)
         end
         t += Δt
@@ -103,16 +94,16 @@ end
 
 #%%
 
-const N       = 10     # Number of rods
+const N       = 2     # Number of rods
 const L       = 0.5   # Rod length
 const σ       = 0.005  # Rod diameter
 const ϵ       = 1.0   # Hard core repulsion L-J potential depth
-const Q       = 1000.0
-const tMax    = 0.00001  # Simulation duration
+const Q       = 0.0
+const tMax    = 0.001  # Simulation duration
 const boxSize = 1.0   # Dimensions of box in which rods are initialised
 
 main(2,L,L/5,ϵ/100.0,Q,tMax/100.0,boxSize,0)
 
 #using BenchmarkTools
 #@benchmark main(N,L,σ,ϵ,Q,tMax,boxSize,0) seconds=300
-main(N,L,σ,ϵ,Q,tMax,boxSize,1)
+#main(N,L,σ,ϵ,Q,tMax,boxSize,1)
