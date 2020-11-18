@@ -72,8 +72,8 @@ using CreateRunDirectory
 
         # Forward Euler integration of overdamped Langevin equation for position and orientation, given drift and stochastic terms.
         for i=1:N
-            #Ω[i] = Ω[i] .+ τ[i,:,1].*Δt .+ #ξΩ[i].*sqrt(Δt)
-            #Ω[i] = Ω[i]./sqrt(Ω[i]⋅Ω[i])
+            Ω[i] = Ω[i] .+ τ[i,:,1].*Δt .+ Ω[i].*sqrt(Δt)
+            Ω[i] = Ω[i]./sqrt(Ω[i]⋅Ω[i])
             r[i] = r[i] .+ F[i,:,1].*Δt .+ ξr[i].*sqrt(Δt)
         end
         t += Δt
