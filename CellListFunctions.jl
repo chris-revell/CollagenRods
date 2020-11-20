@@ -11,6 +11,7 @@
 module CellListFunctions
 
     using LinearAlgebra
+    using Dictionaries
 
     const Intx2 = Tuple{Int64, Int64}
     const Intx3 = Tuple{Int64, Int64, Int64}
@@ -47,13 +48,13 @@ module CellListFunctions
 
     # Allocate all particles in matrix r to grid points. Return Dictionary cellLists mapping (x,y,z) indices to list of particles.
     @inline @views function gridAllocate(r, N, interactionThresh)
-
-        cellLists = Dict{Intx3,Vector{Int64}}()
+        
+        cellLists = Dictionary{Intx3,Vector{Int64}}()
 
         for i = 1:N
             indexTuple = (ceil.(Int64,r[i]./interactionThresh)...,)
             if indexTuple ∉ keys(cellLists)
-                cellLists[indexTuple] = [i]
+                insert!(cellLists,indexTuple,[i])
             else
                 push!(cellLists[indexTuple],i)
             end

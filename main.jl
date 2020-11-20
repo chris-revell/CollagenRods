@@ -1,11 +1,20 @@
+#
+#  mail.jl
+#  collagen-diffusive-rods
+#
+#  Created by Christopher Revell on 05/10/2020.
+#
+#
+
+# Load official packages
 using LinearAlgebra
 using Random
 using Distributions
 using Base.Threads
 using StaticArrays
 
+# Load local modules
 push!(LOAD_PATH, "./")
-
 using OrthonormalBases
 using InterRodForces
 using BrownianMotion
@@ -17,7 +26,7 @@ using CreateRunDirectory
 
 #%%
 
-@views function main(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
+@views function main(N::Int64,L::Float64,σ::Float64,ϵ::Float64,Q::Float64,tMax::Float64,boxSize::Float64,outputToggle::Int64)
 
     η               = 1.0   # Solvent shear viscocity
     kT              = 1.0   # Boltzman constant*Temperature
@@ -28,6 +37,8 @@ using CreateRunDirectory
     DPerpendicular  = D₀*(log(p)+0.839+0.185/p+0.233/p^2)/4π
     DRotation       = 3*D₀*(log(p)-0.662+0.917/p-0.05/p^2)/(π*L^2)
     interactionThresh = 1.3*L
+
+    Random.seed!(3)
 
     r  = SizedVector{N}(fill(SVector{3}(zeros(Float64,3)),N))                 # Centrepoint positions of all rods as a vector of static 3-vectors
     Ω  = SizedVector{N}(fill(SVector{3}(zeros(Float64,3)),N))                 # Orientations of all rods as a vector of static 3-vectors
@@ -71,7 +82,7 @@ using CreateRunDirectory
         Δt = adaptTimestep!(N,F,τ,ξr,ξΩ,σ,kT,L)
 
         # Forward Euler integration of overdamped Langevin equation for position and orientation, given drift and stochastic terms.
-        for i=1:N
+        for i=1:N # @threads?
             Ω[i] = Ω[i] .+ τ[i,:,1].*Δt .+ Ω[i].*sqrt(Δt)
             Ω[i] = Ω[i]./sqrt(Ω[i]⋅Ω[i])
             r[i] = r[i] .+ F[i,:,1].*Δt .+ ξr[i].*sqrt(Δt)
@@ -94,13 +105,13 @@ end
 
 #%%
 
-const N       = 2     # Number of rods
-const L       = 0.5   # Rod length
-const σ       = 0.005  # Rod diameter
-const ϵ       = 1.0   # Hard core repulsion L-J potential depth
-const Q       = 0.0
-const tMax    = 0.001  # Simulation duration
-const boxSize = 1.0   # Dimensions of box in which rods are initialised
+N       = 4     # Number of rods
+L       = 1.0   # Rod length
+σ       = 0.01  # Rod diameter
+ϵ       = 1.0   # Hard core repulsion L-J potential depth
+Q       = 10.0
+tMax    = 0.0001  # Simulation duration
+boxSize = 2.0   # Dimensions of box in which rods are initialised
 
 main(2,L,L/5,ϵ/100.0,Q,tMax/100.0,boxSize,0)
 

@@ -19,7 +19,7 @@ with open("{}/conditions.txt".format(argv[1])) as f:
         (key, val) = line.split(",")
         conditions[key] = float(val)
 
-boxSize = float(conditions["boxSize"])
+boxSize = 2.0*float(conditions["boxSize"])
 σ = float(conditions["σ"])
 N = int(conditions["N"])
 L = float(conditions["L"])
