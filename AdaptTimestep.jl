@@ -18,9 +18,9 @@ using LinearAlgebra
     ξrmax_sq = maximum(ξr.⋅ξr)
     ξΩmax_sq = maximum(ξΩ.⋅ξΩ)
 
-    dt = min(σ^2/(4.0*ξrmax_sq),((σ*L)^2)/(4.0*ξΩmax_sq),σ/(2.0*sqrt(Fmax_sq)),σ*L/(2.0*sqrt(τmax_sq)))
+    Δt = min(σ^2/(4.0*ξrmax_sq),((σ*L)^2)/(4.0*ξΩmax_sq),σ/(2.0*sqrt(Fmax_sq)),σ*L/(2.0*sqrt(τmax_sq)))
 
-    return dt
+    return Δt
 
 end
 
