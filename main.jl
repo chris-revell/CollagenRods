@@ -23,6 +23,7 @@ using CellListFunctions
 using OutputData
 using Initialise
 using CreateRunDirectory
+using Visualise
 
 #%%
 
@@ -99,7 +100,7 @@ using CreateRunDirectory
 
     end
     if outputToggle==1
-        run(`python3 visualise.py $("output/"*foldername)`)
+        visualise("output/"*foldername,N,L,σ)
     end
 end
 
