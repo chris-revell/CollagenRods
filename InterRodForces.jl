@@ -33,8 +33,8 @@ using Base.Threads
             FMag  = lennardJones(rMag,ϵ,σ)
             rᵢⱼ[:,tID] .*= FMag/rMag
             # Linear forces acting on rods x and y using orthonormal basis vectors
-            F[x,:,tID] .+= (DPerpendicular/kT)*((rᵢⱼ[:,tID]⋅E[x][:,1]).*E[x][:,1] .+ (rᵢⱼ[:,tID]⋅E[x][:,2]).*E[x][:,2]) .+ (DParallel/kT)*(rᵢⱼ[:,tID]⋅Ω[x]).*Ω[x]
-            F[y,:,tID] .-= (DPerpendicular/kT)*((rᵢⱼ[:,tID]⋅E[y][:,1]).*E[y][:,1] .+ (rᵢⱼ[:,tID]⋅E[y][:,2]).*E[y][:,2]) .+ (DParallel/kT)*(rᵢⱼ[:,tID]⋅Ω[y]).*Ω[y]
+            F[x,:,tID] .+= (DPerpendicular/kT)*((rᵢⱼ[:,tID]⋅E[x,:,1]).*E[x,:,1] .+ (rᵢⱼ[:,tID]⋅E[x,:,2]).*E[x,:,2]) .+ (DParallel/kT)*(rᵢⱼ[:,tID]⋅Ω[x]).*Ω[x]
+            F[y,:,tID] .-= (DPerpendicular/kT)*((rᵢⱼ[:,tID]⋅E[y,:,1]).*E[y,:,1] .+ (rᵢⱼ[:,tID]⋅E[y,:,2]).*E[y,:,2]) .+ (DParallel/kT)*(rᵢⱼ[:,tID]⋅Ω[y]).*Ω[y]
             # Moments on rods x and y
             τ[x,:,tID] .+= (DRotation/kT).*((λ.*Ω[x])×rᵢⱼ[:,tID])×Ω[x]
             τ[y,:,tID] .-= (DRotation/kT).*((μ.*Ω[y])×rᵢⱼ[:,tID])×Ω[y]
@@ -58,8 +58,8 @@ using Base.Threads
                 FMag  = Q/(4*π*rMag^2)
                 rᵢⱼ[:,tID] .*= FMag/rMag
                 # Linear forces acting on rods x and y using orthonormal basis vectors
-                F[x,:,tID] .+= (DPerpendicular/kT)*((rᵢⱼ[:,tID]⋅E[x][:,1]).*E[x][:,1] .+ (rᵢⱼ[:,tID]⋅E[x][:,2]).*E[x][:,2]) .+ (DParallel/kT)*(rᵢⱼ[:,tID]⋅Ω[x]).*Ω[x]
-                F[y,:,tID] .-= (DPerpendicular/kT)*((rᵢⱼ[:,tID]⋅E[y][:,1]).*E[y][:,1] .+ (rᵢⱼ[:,tID]⋅E[y][:,2]).*E[y][:,2]) .+ (DParallel/kT)*(rᵢⱼ[:,tID]⋅Ω[y]).*Ω[y]
+                F[x,:,tID] .+= (DPerpendicular/kT)*((rᵢⱼ[:,tID]⋅E[x,:,1]).*E[x,:,1] .+ (rᵢⱼ[:,tID]⋅E[x,:,2]).*E[x,:,2]) .+ (DParallel/kT)*(rᵢⱼ[:,tID]⋅Ω[x]).*Ω[x]
+                F[y,:,tID] .-= (DPerpendicular/kT)*((rᵢⱼ[:,tID]⋅E[y,:,1]).*E[y,:,1] .+ (rᵢⱼ[:,tID]⋅E[y,:,2]).*E[y,:,2]) .+ (DParallel/kT)*(rᵢⱼ[:,tID]⋅Ω[y]).*Ω[y]
                 # Moments on rods x and y
                 τ[x,:,tID] .+= (DRotation/kT).*((λ.*Ω[x])×rᵢⱼ[:,tID])×Ω[x]
                 τ[y,:,tID] .-= (DRotation/kT).*((μ.*Ω[y])×rᵢⱼ[:,tID])×Ω[y]
@@ -78,8 +78,8 @@ using Base.Threads
         #         FMag  = Q/(4.0*π*rMag^2) #(1.0+k₀*rMag)*(Q*exp(-k₀*rMag))/(4.0*π*ϵ₀*rMag^2)
         #         rᵢⱼ[:,tID] .*= FMag/rMag
         #         # Linear forces acting on rods i and j using orthonormal basis vectors
-        #         F[i,:,tID] .+= (DPerpendicular/kT)*((rᵢⱼ[:,tID]⋅E[i][:,1]).*E[i][:,1] .+ (rᵢⱼ[:,tID]⋅E[i][:,2]).*E[i][:,2]) .+ (DParallel/kT)*(rᵢⱼ[:,tID]⋅Ω[i]).*Ω[i]
-        #         F[j,:,tID] .-= (DPerpendicular/kT)*((rᵢⱼ[:,tID]⋅E[j][:,1]).*E[j][:,1] .+ (rᵢⱼ[:,tID]⋅E[j][:,2]).*E[j][:,2]) .+ (DParallel/kT)*(rᵢⱼ[:,tID]⋅Ω[j]).*Ω[j]
+        #         F[i,:,tID] .+= (DPerpendicular/kT)*((rᵢⱼ[:,tID]⋅E[i,:,1]).*E[i,:,1] .+ (rᵢⱼ[:,tID]⋅E[i,:,2]).*E[i,:,2]) .+ (DParallel/kT)*(rᵢⱼ[:,tID]⋅Ω[i]).*Ω[i]
+        #         F[j,:,tID] .-= (DPerpendicular/kT)*((rᵢⱼ[:,tID]⋅E[j][:,1]).*E[j][:,1] .+ (rᵢⱼ[:,tID]⋅E[j,:,2]).*E[j,:,2]) .+ (DParallel/kT)*(rᵢⱼ[:,tID]⋅Ω[j]).*Ω[j]
         #         # Moment on rod i
         #         τ[i,:,tID] .+= (DRotation/kT).*((Ω[i].*L/2.0)×rᵢⱼ[:,tID])×Ω[i]
         #         τ[j,:,tID] .-= (DRotation/kT).*((-Ω[j].*Δu)×rᵢⱼ[:,tID])×Ω[j]
@@ -91,8 +91,8 @@ using Base.Threads
         #         FMag  = Q/(4.0*π*rMag^2) #(1.0+k₀*rMag)*(Q*exp(-k₀*rMag))/(4.0*π*ϵ₀*rMag^2)
         #         rᵢⱼ[:,tID] .*= FMag/rMag
         #         # Linear forces acting on rods i and j using orthonormal basis vectors
-        #         F[i,:,tID] .+= (DPerpendicular/kT)*((rᵢⱼ[:,tID]⋅E[i][:,1]).*E[i][:,1] .+ (rᵢⱼ[:,tID]⋅E[i][:,2]).*E[i][:,2]) .+ (DParallel/kT)*(rᵢⱼ[:,tID]⋅Ω[i]).*Ω[i]
-        #         F[j,:,tID] .-= (DPerpendicular/kT)*((rᵢⱼ[:,tID]⋅E[j][:,1]).*E[j][:,1] .+ (rᵢⱼ[:,tID]⋅E[j][:,2]).*E[j][:,2]) .+ (DParallel/kT)*(rᵢⱼ[:,tID]⋅Ω[j]).*Ω[j]
+        #         F[i,:,tID] .+= (DPerpendicular/kT)*((rᵢⱼ[:,tID]⋅E[i,:,1]).*E[i,:,1] .+ (rᵢⱼ[:,tID]⋅E[i,:,2]).*E[i,:,2]) .+ (DParallel/kT)*(rᵢⱼ[:,tID]⋅Ω[i]).*Ω[i]
+        #         F[j,:,tID] .-= (DPerpendicular/kT)*((rᵢⱼ[:,tID]⋅E[j][:,1]).*E[j][:,1] .+ (rᵢⱼ[:,tID]⋅E[j,:,2]).*E[j,:,2]) .+ (DParallel/kT)*(rᵢⱼ[:,tID]⋅Ω[j]).*Ω[j]
         #         # Moment on rod i
         #         τ[i,:,tID] .+= (DRotation/kT).*((-Ω[i].*L/2.0)×rᵢⱼ[:,tID])×Ω[i]
         #         τ[j,:,tID] .-= (DRotation/kT).*((Ω[j].*Δu)×rᵢⱼ[:,tID])×Ω[j]
