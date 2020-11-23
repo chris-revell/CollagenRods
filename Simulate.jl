@@ -7,7 +7,6 @@ using Random
 using Distributions
 using Base.Threads
 using StaticArrays
-using TimerOutputs
 
 # Local modules
 using OrthonormalBases
@@ -20,8 +19,6 @@ using OutputData
 using Visualise
 
 @inline @views function simulate(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
-
-    to = TimerOutput()
 
     η                 = 1.0   # Solvent shear viscocity
     kT                = 1.0   # Boltzman constant*Temperature
@@ -65,35 +62,24 @@ using Visualise
     while t < tMax
 
         # Create list of particle interaction pairs based on cell lists algorithm
-        #pairsList = findPairs!(N,r,interactionThresh,neighbourCells)
-        @timeit to "findPairs" pairsList = findPairs!(N,r,interactionThresh,neighbourCells)
+        pairsList = findPairs!(N,r,interactionThresh,neighbourCells)
 
         # Find perpendicular basis vectors for each rod
-        #orthonormalBases!(N,Ω,E)
-        @timeit to "orthonormalBases" orthonormalBases!(N,Ω,E)
+        orthonormalBases!(N,Ω,E)
 
         # Calculate attractive and repulsive forces between rods
-        #interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q)
-        @timeit to "interRodForces" interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q,dummyVectors)
+        interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q,dummyVectors)
 
         # Calculate stochastic component of Langevin equation
-        #brownianMotion!(N,Ω,ξr,ξΩ,E,DParallel,DPerpendicular,DRotation,threadRNG)
-        @timeit to "brownianMotion" brownianMotion!(N,Ω,ξr,ξΩ,E,DParallel,DPerpendicular,DRotation,threadRNG)
+        brownianMotion!(N,Ω,ξr,ξΩ,E,DParallel,DPerpendicular,DRotation,threadRNG)
 
         # Adapt timestep according to force magnitudes
-        #Δt = adaptTimestep!(N,F,τ,ξr,ξΩ,σ,kT,L)
-        @timeit to "adaptTimestep" Δt = adaptTimestep!(N,F,τ,ξr,ξΩ,σ,kT,L)
+        Δt = adaptTimestep!(N,F,τ,ξr,ξΩ,σ,kT,L)
 
         # Forward Euler integration of overdamped Langevin equation for position and orientation, given drift and stochastic terms.
-        #Ω .+= τ[:,:,1].*Δt .+ ξΩ.*sqrt(Δt)
-        @timeit to "integrate" Ω .+= τ[:,:,1].*Δt .+ ξΩ.*sqrt(Δt)
-            #Ω .= Ω./sqrt.(sum(Ω.^2,dims=2)) # Normalise magnitude
-            #@timeit to "integrate" Ω .= Ω./sqrt.(sum(Ω.^2,dims=2)) # Normalise magnitude
-        #normalize!.(eachslice(Ω,dims=1))
-        @timeit to "integrate" normalize!.(eachslice(Ω,dims=1))
-
-        #r .+= F[:,:,1].*Δt .+ ξr.*sqrt(Δt)
-        @timeit to "integrate" r .+= F[:,:,1].*Δt .+ ξr.*sqrt(Δt)
+        Ω .+= τ[:,:,1].*Δt .+ ξΩ.*sqrt(Δt)
+        normalize!.(eachslice(Ω,dims=1))
+        r .+= F[:,:,1].*Δt .+ ξr.*sqrt(Δt)
 
         t += Δt
 
@@ -110,8 +96,6 @@ using Visualise
         #run(`python3 visualise.py $("output/"*foldername)`)
         visualise("output/"*foldername,N,L,σ)
     end
-
-    display(to)
 
 end
 
