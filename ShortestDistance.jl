@@ -26,22 +26,22 @@ using LinearAlgebra
         if 0 < θ <= π/2.0
             # Region 1
             μ = L/2.0
-            dummyVectors[1,:] = r[j].+μ.*Ω[j]
+            dummyVectors[1,:] = r[j,:].+μ.*Ω[j,:]
             t = shortestPointToRod(dummyVectors[1,:],dummyVectors[2,:],dummyVectors[3,:],r[i,:],Ω[i,:],L)
             λ = (t-0.5)*L
         elseif π/2.0 < θ <= π
             λ = L/2.0
-            dummyVectors[1,:] = r[i] .+ λ.*Ω[i]
+            dummyVectors[1,:] = r[i,:] .+ λ.*Ω[i,:]
             t = shortestPointToRod(dummyVectors[1,:],dummyVectors[2,:],dummyVectors[3,:],r[j,:],Ω[j,:],L)
             μ = (t-0.5)*L
         elseif π < θ <= 3.0*π/2.0
             μ = -L/2.0
-            dummyVectors[1,:] = r[j].+μ.*Ω[j]
+            dummyVectors[1,:] = r[j,:].+μ.*Ω[j,:]
             t = shortestPointToRod(dummyVectors[1,:],dummyVectors[2,:],dummyVectors[3,:],r[i,:],Ω[i,:],L)
             λ = (t-0.5)*L
         else
             λ = -L/2.0
-            dummyVectors[1,:] = r[i] .+ λ.*Ω[i]
+            dummyVectors[1,:] = r[i,:] .+ λ.*Ω[i,:]
             t = shortestPointToRod(dummyVectors[1,:],dummyVectors[2,:],dummyVectors[3,:],r[j,:],Ω[j,:],L)
             μ = (t-0.5)*L
         end
