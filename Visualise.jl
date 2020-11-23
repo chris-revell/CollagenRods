@@ -29,7 +29,7 @@ function visualise(foldername,nTrimers,L,σ)
 
     for i in 0:nImages
         scene = Scene()
-        set_theme!(show_axis = false, scale_plot = false, resolution = (650, 600))
+        set_theme!(show_axis = false, scale_plot = false, resolution = (800, 800))
         r .= data[i*2*nTrimers+1:i*2*nTrimers+nTrimers,:]
         Ω .= data[i*2*nTrimers+nTrimers+1:(i+1)*2*nTrimers,:]
         for j=1:nTrimers

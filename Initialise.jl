@@ -17,7 +17,7 @@ using OutputData
 
     # Create random number generators for each thread
     for i in 1:nthreads
-        threadRNG[i] = Random.MersenneTwister(i)
+        threadRNG[i] = Random.MersenneTwister()
     end
 
     # Initialise random rod positions

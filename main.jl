@@ -39,8 +39,6 @@ using Visualise
     DRotation       = 3*D₀*(log(p)-0.662+0.917/p-0.05/p^2)/(π*L^2)
     interactionThresh = 1.3*L
 
-    Random.seed!(3)
-
     r  = SizedVector{N}(fill(SVector{3}(zeros(Float64,3)),N))                 # Centrepoint positions of all rods as a vector of static 3-vectors
     Ω  = SizedVector{N}(fill(SVector{3}(zeros(Float64,3)),N))                 # Orientations of all rods as a vector of static 3-vectors
     τ  = SizedArray{Tuple{N,3,nthreads()}}(zeros(Float64,N,3,nthreads()))     # Moments on each rod
