@@ -11,7 +11,7 @@ module OutputData
 using DelimitedFiles
 using LinearAlgebra
 
-@inline function outputData(r,Ω,outfile,t,tMax)
+@inline @views function outputData(r,Ω,outfile,t,tMax)
 
     writedlm(outfile,r,", ")
     writedlm(outfile,Ω,", ")

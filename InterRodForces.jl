@@ -13,7 +13,7 @@ using ShortestDistance
 using LennardJones
 using Base.Threads
 
-@inline function interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q,dummyVectors)
+@inline @views function interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q,dummyVectors)
 
     #k₀ = 1.0
     #ϵ₀ = 1.0
