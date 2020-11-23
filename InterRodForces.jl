@@ -9,10 +9,8 @@
 module InterRodForces
 
 using LinearAlgebra
-include("./ShortestDistance.jl")
-using .ShortestDistance
-include("./LennardJones.jl")
-using .LennardJones
+using ShortestDistance
+using LennardJones
 using Base.Threads
 
 @inline function interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q)
