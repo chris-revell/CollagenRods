@@ -26,7 +26,7 @@ using Base.Threads
         # ---- RepulsiveForces ----
 
         # Find shortest distance between rod x and rod y
-        (μ,λ) = shortestRodToRod!(r,Ω,view(rᵢⱼ,:,threadid()),x,y,L,dummyVectors)
+        (μ,λ) = shortestRodToRod!(r,Ω,view(rᵢⱼ,:,threadid()),x,y,L,dummyVectors[:,:,threadid()])
         rMag = sqrt(view(rᵢⱼ,:,threadid())⋅view(rᵢⱼ,:,threadid()))
 
         # If shortest distance is less than rod radius, calculate hard core repulsion

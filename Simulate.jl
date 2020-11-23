@@ -19,7 +19,7 @@ using CreateRunDirectory
 using OutputData
 using Visualise
 
-function simulate(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
+@inline function simulate(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
 
     to = TimerOutput()
 
