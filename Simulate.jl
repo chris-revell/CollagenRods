@@ -1,6 +1,7 @@
 
 module Simulate
 
+# Julia packages
 using LinearAlgebra
 using Random
 using Distributions
@@ -8,6 +9,7 @@ using Base.Threads
 using StaticArrays
 using TimerOutputs
 
+# Local modules 
 using OrthonormalBases
 using InterRodForces
 using BrownianMotion
@@ -21,14 +23,14 @@ function simulate(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
 
     to = TimerOutput()
 
-    η               = 1.0   # Solvent shear viscocity
-    kT              = 1.0   # Boltzman constant*Temperature
+    η                 = 1.0   # Solvent shear viscocity
+    kT                = 1.0   # Boltzman constant*Temperature
     # Diffusion constants from Löwen Phys Rev E 1994
-    p               = L/σ         # Rod aspect ratio
-    D₀              = kT/(η*L)
-    DParallel       = D₀*(log(p)+-0.207+0.980/p-0.133/p^2)/2π
-    DPerpendicular  = D₀*(log(p)+0.839+0.185/p+0.233/p^2)/4π
-    DRotation       = 3*D₀*(log(p)-0.662+0.917/p-0.05/p^2)/(π*L^2)
+    p                 = L/σ         # Rod aspect ratio
+    D₀                = kT/(η*L)
+    DParallel         = D₀*(log(p)+-0.207+0.980/p-0.133/p^2)/2π
+    DPerpendicular    = D₀*(log(p)+0.839+0.185/p+0.233/p^2)/4π
+    DRotation         = 3*D₀*(log(p)-0.662+0.917/p-0.05/p^2)/(π*L^2)
     interactionThresh = 1.3*L
 
     # Create random number generators for each thread
@@ -37,16 +39,17 @@ function simulate(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
         threadRNG[i] = Random.MersenneTwister()
     end
 
-    r  = SizedArray{Tuple{N,3}}((rand(Float64,N,3).-0.5).*boxSize) # Random initial centrepoint positions of all rods
-    Ω  = SizedArray{Tuple{N,3}}(rand(Float64,N,3).*2.0.-1.0)       # Random initial orientations of all rods
-    Ω .= Ω./sqrt.(sum(Ω.^2,dims=2))        # Normalise magnitude
+    r  = SizedArray{Tuple{N,3}}((rand(Float64,N,3).-0.5).*boxSize)            # Random initial centrepoint positions of all rods
+    Ω  = SizedArray{Tuple{N,3}}(rand(Float64,N,3).*2.0.-1.0)                  # Random initial orientations of all rods
+    normalize!.(eachslice(Ω,dims=1))
+    #Ω .= Ω./sqrt.(sum(Ω.^2,dims=2))                                           # Normalise magnitude
     τ  = SizedArray{Tuple{N,3,nthreads()}}(zeros(Float64,N,3,nthreads()))     # Moments on each rod
     F  = SizedArray{Tuple{N,3,nthreads()}}(zeros(Float64,N,3,nthreads()))     # Forces on each rod
-    ξr = SizedArray{Tuple{N,3}}(zeros(Float64,N,3))                # Translational stochastic component
-    ξΩ = SizedArray{Tuple{N,3}}(zeros(Float64,N,3))                # Rotational stochastic component
-    E  = SizedArray{Tuple{N,3,2}}(zeros(Float64,N,3,2))              # Matrix for orthonormal bases
-    rᵢⱼ= SizedArray{Tuple{3,nthreads()}}(zeros(Float64,3,nthreads()))       # Matric of dummy vectors for later calculations
-    pairsList = Tuple{Int64, Int64}[]      # Array storing tuple of particle interaction pairs eg pairsList[2]=(1,5) => 2nd element of array shows that particles 1 and 5 are in interaction range
+    ξr = SizedArray{Tuple{N,3}}(zeros(Float64,N,3))                           # Translational stochastic component
+    ξΩ = SizedArray{Tuple{N,3}}(zeros(Float64,N,3))                           # Rotational stochastic component
+    E  = SizedArray{Tuple{N,3,2}}(zeros(Float64,N,3,2))                       # Matrix for orthonormal bases
+    rᵢⱼ= SizedArray{Tuple{3,nthreads()}}(zeros(Float64,3,nthreads()))         # Matric of dummy vectors for later calculations
+    pairsList = Tuple{Int64, Int64}[]                                         # Array storing tuple of particle interaction pairs eg pairsList[2]=(1,5) => 2nd element of array shows that particles 1 and 5 are in interaction range
     neighbourCells = MVector{13}(Vector{Tuple{Int64,Int64,Int64}}(undef, 13)) # Vector storing 13 neighbouring cells for a given cell
 
     if outputToggle==1
