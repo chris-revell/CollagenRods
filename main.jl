@@ -7,7 +7,7 @@ L       = 0.5   # Rod length
 σ       = 0.005  # Rod diameter
 ϵ       = 1.0   # Hard core repulsion L-J potential depth
 Q       = 10.0
-tMax    = 0.0001  # Simulation duration
+tMax    = 0.001  # Simulation duration
 boxSize = 2.0   # Dimensions of box in which rods are initialised
 
 

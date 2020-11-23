@@ -6,8 +6,7 @@ using Random
 using Distributions
 using Base.Threads
 using StaticArrays
-
-#using TimerOutputs
+using TimerOutputs
 
 using OrthonormalBases
 using InterRodForces
@@ -16,11 +15,11 @@ using AdaptTimestep
 using CellListFunctions
 using CreateRunDirectory
 using OutputData
-
+using Visualise
 
 function simulate(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
 
-    #to = TimerOutput()
+    to = TimerOutput()
 
     η               = 1.0   # Solvent shear viscocity
     kT              = 1.0   # Boltzman constant*Temperature
@@ -31,8 +30,6 @@ function simulate(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
     DPerpendicular  = D₀*(log(p)+0.839+0.185/p+0.233/p^2)/4π
     DRotation       = 3*D₀*(log(p)-0.662+0.917/p-0.05/p^2)/(π*L^2)
     interactionThresh = 1.3*L
-
-    realTimePlotToggle = 0
 
     # Create random number generators for each thread
     threadRNG = Vector{Random.MersenneTwister}(undef, nthreads())
@@ -56,9 +53,6 @@ function simulate(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
         foldername = createRunDirectory(N,L,σ,ϵ,p,η,kT,tMax,boxSize,D₀,DParallel,DPerpendicular,DRotation,interactionThresh)
         outfile = open("output/$(foldername)/output.txt","w")
         outputData(r,Ω,outfile,0,tMax)
-        if realTimePlotToggle == 1
-            run(`python3 visualiseSingle.py $("output/"*foldername)`)
-        end
     end
 
     # Iterate until max run time reached
@@ -66,53 +60,53 @@ function simulate(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
     while t < tMax
 
         # Create list of particle interaction pairs based on cell lists algorithm
-        pairsList = findPairs!(N,r,interactionThresh,neighbourCells)
-        #@timeit to "findPairs" pairsList = findPairs!(N,r,interactionThresh,neighbourCells)
+        #pairsList = findPairs!(N,r,interactionThresh,neighbourCells)
+        @timeit to "findPairs" pairsList = findPairs!(N,r,interactionThresh,neighbourCells)
 
         # Find perpendicular basis vectors for each rod
-        orthonormalBases!(N,Ω,E)
-        #@timeit to "orthonormalBases" orthonormalBases!(N,Ω,E)
+        #orthonormalBases!(N,Ω,E)
+        @timeit to "orthonormalBases" orthonormalBases!(N,Ω,E)
 
         # Calculate attractive and repulsive forces between rods
-        interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q)
-        #@timeit to "interRodForces" interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q)
+        #interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q)
+        @timeit to "interRodForces" interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q)
 
         # Calculate stochastic component of Langevin equation
-        brownianMotion!(N,Ω,ξr,ξΩ,E,DParallel,DPerpendicular,DRotation,threadRNG)
-        #@timeit to "brownianMotion" brownianMotion!(N,Ω,ξr,ξΩ,E,DParallel,DPerpendicular,DRotation,threadRNG)
+        #brownianMotion!(N,Ω,ξr,ξΩ,E,DParallel,DPerpendicular,DRotation,threadRNG)
+        @timeit to "brownianMotion" brownianMotion!(N,Ω,ξr,ξΩ,E,DParallel,DPerpendicular,DRotation,threadRNG)
 
         # Adapt timestep according to force magnitudes
-        Δt = adaptTimestep!(N,F,τ,ξr,ξΩ,σ,kT,L)
-        #@timeit to "adaptTimestep" Δt = adaptTimestep!(N,F,τ,ξr,ξΩ,σ,kT,L)
+        #Δt = adaptTimestep!(N,F,τ,ξr,ξΩ,σ,kT,L)
+        @timeit to "adaptTimestep" Δt = adaptTimestep!(N,F,τ,ξr,ξΩ,σ,kT,L)
 
         # Forward Euler integration of overdamped Langevin equation for position and orientation, given drift and stochastic terms.
-        Ω .+= view(τ,:,:,1).*Δt .+ ξΩ.*sqrt(Δt)
-        #@timeit to "integrate" Ω .+= view(τ,:,:,1).*Δt .+ ξΩ.*sqrt(Δt)
-        Ω .= Ω./sqrt.(sum(Ω.^2,dims=2)) # Normalise magnitude
-        #@timeit to "integrate" Ω .= Ω./sqrt.(sum(Ω.^2,dims=2)) # Normalise magnitude
-        r .+= view(F,:,:,1).*Δt .+ ξr.*sqrt(Δt)
-        #@timeit to "integrate" r .+= view(F,:,:,1).*Δt .+ ξr.*sqrt(Δt)
+        #Ω .+= view(τ,:,:,1).*Δt .+ ξΩ.*sqrt(Δt)
+        @timeit to "integrate" Ω .+= view(τ,:,:,1).*Δt .+ ξΩ.*sqrt(Δt)
+            #Ω .= Ω./sqrt.(sum(Ω.^2,dims=2)) # Normalise magnitude
+            #@timeit to "integrate" Ω .= Ω./sqrt.(sum(Ω.^2,dims=2)) # Normalise magnitude
+        #normalize!.(eachslice(Ω,dims=1))
+        @timeit to "integrate" normalize!.(eachslice(Ω,dims=1))
+
+        #r .+= view(F,:,:,1).*Δt .+ ξr.*sqrt(Δt)
+        @timeit to "integrate" r .+= view(F,:,:,1).*Δt .+ ξr.*sqrt(Δt)
 
         t += Δt
 
         if t%(tMax/100.0) < Δt && outputToggle==1
             outputData(r,Ω,outfile,t,tMax)
-            if realTimePlotToggle == 1
-                run(`python3 visualiseSingle.py $("output/"*foldername)`)
-            end
         end
 
         # Refresh force and moment arrays
-        τ .= 0.0
-        F .= 0.0
-    end
-    if outputToggle==1
-        if realTimePlotToggle != 1
-            run(`python3 visualise.py $("output/"*foldername)`)
-        end
+        fill!(τ,0.0)
+        fill!(F,0.0)
     end
 
-    #display(to)
+    if outputToggle==1
+        #run(`python3 visualise.py $("output/"*foldername)`)
+        visualise("output/"*foldername,N,L,σ)
+    end
+
+    display(to)
 
 end
 
