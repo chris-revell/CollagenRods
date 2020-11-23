@@ -9,7 +9,7 @@ using Base.Threads
 using StaticArrays
 using TimerOutputs
 
-# Local modules 
+# Local modules
 using OrthonormalBases
 using InterRodForces
 using BrownianMotion
@@ -52,6 +52,8 @@ function simulate(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
     pairsList = Tuple{Int64, Int64}[]                                         # Array storing tuple of particle interaction pairs eg pairsList[2]=(1,5) => 2nd element of array shows that particles 1 and 5 are in interaction range
     neighbourCells = MVector{13}(Vector{Tuple{Int64,Int64,Int64}}(undef, 13)) # Vector storing 13 neighbouring cells for a given cell
 
+    dummyVectors = SizedArray{Tuple{3,3,nthreads()}}(zeros(Float64,3,3,nthreads()))
+
     if outputToggle==1
         foldername = createRunDirectory(N,L,σ,ϵ,p,η,kT,tMax,boxSize,D₀,DParallel,DPerpendicular,DRotation,interactionThresh)
         outfile = open("output/$(foldername)/output.txt","w")
@@ -72,7 +74,7 @@ function simulate(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
 
         # Calculate attractive and repulsive forces between rods
         #interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q)
-        @timeit to "interRodForces" interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q)
+        @timeit to "interRodForces" interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q,dummyVectors)
 
         # Calculate stochastic component of Langevin equation
         #brownianMotion!(N,Ω,ξr,ξΩ,E,DParallel,DPerpendicular,DRotation,threadRNG)

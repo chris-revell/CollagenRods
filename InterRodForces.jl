@@ -13,7 +13,7 @@ using ShortestDistance
 using LennardJones
 using Base.Threads
 
-@inline function interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q)
+@inline function interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q,dummyVectors)
 
     #k₀ = 1.0
     #ϵ₀ = 1.0
@@ -26,7 +26,7 @@ using Base.Threads
         # ---- RepulsiveForces ----
 
         # Find shortest distance between rod x and rod y
-        (μ,λ) = shortestRodToRod!(r,Ω,view(rᵢⱼ,:,threadid()),x,y,L)
+        (μ,λ) = shortestRodToRod!(r,Ω,view(rᵢⱼ,:,threadid()),x,y,L,dummyVectors)
         rMag = sqrt(view(rᵢⱼ,:,threadid())⋅view(rᵢⱼ,:,threadid()))
 
         # If shortest distance is less than rod radius, calculate hard core repulsion
