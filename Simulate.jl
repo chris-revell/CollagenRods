@@ -85,15 +85,15 @@ using Visualise
         @timeit to "adaptTimestep" Δt = adaptTimestep!(N,F,τ,ξr,ξΩ,σ,kT,L)
 
         # Forward Euler integration of overdamped Langevin equation for position and orientation, given drift and stochastic terms.
-        #Ω .+= view(τ,:,:,1).*Δt .+ ξΩ.*sqrt(Δt)
-        @timeit to "integrate" Ω .+= view(τ,:,:,1).*Δt .+ ξΩ.*sqrt(Δt)
+        #Ω .+= τ[:,:,1].*Δt .+ ξΩ.*sqrt(Δt)
+        @timeit to "integrate" Ω .+= τ[:,:,1].*Δt .+ ξΩ.*sqrt(Δt)
             #Ω .= Ω./sqrt.(sum(Ω.^2,dims=2)) # Normalise magnitude
             #@timeit to "integrate" Ω .= Ω./sqrt.(sum(Ω.^2,dims=2)) # Normalise magnitude
         #normalize!.(eachslice(Ω,dims=1))
         @timeit to "integrate" normalize!.(eachslice(Ω,dims=1))
 
-        #r .+= view(F,:,:,1).*Δt .+ ξr.*sqrt(Δt)
-        @timeit to "integrate" r .+= view(F,:,:,1).*Δt .+ ξr.*sqrt(Δt)
+        #r .+= F[:,:,1].*Δt .+ ξr.*sqrt(Δt)
+        @timeit to "integrate" r .+= F[:,:,1].*Δt .+ ξr.*sqrt(Δt)
 
         t += Δt
 

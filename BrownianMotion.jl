@@ -17,9 +17,9 @@ using Base.Threads
 @inline @views function brownianMotion!(N,Ω,ξr,ξΩ,E,DParallel,DPerpendicular,DRotation,RNG)
     @threads for i=1:N
         # Translational component of brownian motion
-        ξr[i,:] .= DParallel*rand(RNG[threadid()],Normal(0.0,1.0)).*view(Ω,i,:) .+ DPerpendicular*rand(RNG[threadid()],Normal(0.0,1.0)).*view(E,i,:,1) .+ DPerpendicular*rand(RNG[threadid()],Normal(0.0,1.0)).*view(E,i,:,2)
+        ξr[i,:] .= DParallel*rand(RNG[threadid()],Normal(0.0,1.0)).*Ω[i,:] .+ DPerpendicular*rand(RNG[threadid()],Normal(0.0,1.0)).*E[i,:,1] .+ DPerpendicular*rand(RNG[threadid()],Normal(0.0,1.0)).*E[i,:,2]
         # Rotational component of brownian motion
-        ξΩ[i,:] .= DRotation*rand(RNG[threadid()],Normal(0.0,1.0)).*view(E,i,:,1) .+ DRotation*rand(RNG[threadid()],Normal(0.0,1.0)).*view(E,i,:,2)
+        ξΩ[i,:] .= DRotation*rand(RNG[threadid()],Normal(0.0,1.0)).*E[i,:,1] .+ DRotation*rand(RNG[threadid()],Normal(0.0,1.0)).*E[i,:,2]
     end
     return nothing
 end

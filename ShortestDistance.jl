@@ -12,9 +12,9 @@ using LinearAlgebra
 
 @inline @views function shortestRodToRod!(r,Ω,rᵢⱼ,i,j,L,dummyVectors)
     # Algorithm from Vega, Lago 1994
-    rᵢⱼ .= view(r,j,:) .- view(r,i,:)
-    λᵢ = (rᵢⱼ⋅view(Ω,i,:) - (view(Ω,i,:)⋅view(Ω,j,:))*(rᵢⱼ⋅view(Ω,j,:)))/(1.0-(view(Ω,i,:)⋅view(Ω,j,:))^2)
-    μⱼ = ((view(Ω,i,:)⋅view(Ω,j,:))*(rᵢⱼ⋅view(Ω,i,:)) - rᵢⱼ⋅view(Ω,j,:))/(1.0-(view(Ω,i,:)⋅view(Ω,j,:))^2)
+    rᵢⱼ .= r[j,:] .- r[i,:]
+    λᵢ = (rᵢⱼ⋅Ω[i,:] - (Ω[i,:]⋅Ω[j,:])*(rᵢⱼ⋅Ω[j,:]))/(1.0-(Ω[i,:]⋅Ω[j,:])^2)
+    μⱼ = ((Ω[i,:]⋅Ω[j,:])*(rᵢⱼ⋅Ω[i,:]) - rᵢⱼ⋅Ω[j,:])/(1.0-(Ω[i,:]⋅Ω[j,:])^2)
 
     if -L/2.0 <= λᵢ <= L/2.0 && -L/2.0 <= μⱼ <= L/2.0
         # Shortest path is within length of rods and not from an end of either rod
@@ -47,7 +47,7 @@ using LinearAlgebra
         end
     end
 
-    rᵢⱼ .+= (μ.*view(Ω,j,:) .- λ.*view(Ω,i,:))
+    rᵢⱼ .+= (μ.*Ω[j,:] .- λ.*Ω[i,:])
     return (μ,λ)
 end
 

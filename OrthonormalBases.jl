@@ -14,7 +14,7 @@ using Base.Threads
 @inline @views function orthonormalBases!(N,Ω,E)
     @threads for i=1:N
         # Create orthonormal basis vectors around rod axis
-        E[i,:,:] .= nullspace(Matrix((view(Ω,i,:))'))
+        E[i,:,:] .= nullspace(Matrix((Ω[i,:])'))
     end
     return nothing
 end
