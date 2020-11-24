@@ -21,13 +21,15 @@ function visualise(foldername,nTrimers,L,σ)
 
     nImages = 100
     data = readdlm(foldername*"/output.txt",',',Float64)
+    nImages = floor(Int64,size(data)[1]/(2.0*nParticles))
     r = zeros(Float64,nTrimers,3)
     Ω = zeros(Float64,nTrimers,3)
     r₁ = fill(Point3(0.0,0.0,0.0),nTrimers)
     r₂ = fill(Point3(0.0,0.0,0.0),nTrimers)
     objects = fill(Cylinder(Point3(0.0,0.0,0.0),Point3(1.0,1.0,1.0),1.0),nTrimers)
 
-    for i in 0:nImages
+    for i in 0:nImages-1
+        println("Rendering $(i+1)/$nImages")
         scene = Scene()
         set_theme!(show_axis = false, scale_plot = false, resolution = (1600, 1600))
         r .= data[i*2*nTrimers+1:i*2*nTrimers+nTrimers,:]
