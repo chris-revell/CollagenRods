@@ -51,6 +51,8 @@ using Visualise
 
     dummyVectors = SizedArray{Tuple{3,3,nthreads()}}(zeros(Float64,3,3,nthreads()))
 
+    electrostaticPairs = SVector{8}([(1,3),(2,4),(3,5),(4,6),(5,7),(6,8),(7,9),(9,1)])
+
     if outputToggle==1
         foldername = createRunDirectory(N,L,σ,ϵ,p,η,kT,tMax,boxSize,D₀,DParallel,DPerpendicular,DRotation,interactionThresh)
         outfile = open("output/$(foldername)/output.txt","w")
@@ -68,7 +70,7 @@ using Visualise
         orthonormalBases!(N,Ω,E)
 
         # Calculate attractive and repulsive forces between rods
-        interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q,dummyVectors)
+        interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q,dummyVectors,electrostaticPairs)
 
         # Calculate stochastic component of Langevin equation
         brownianMotion!(N,Ω,ξr,ξΩ,E,DParallel,DPerpendicular,DRotation,threadRNG)
@@ -94,7 +96,7 @@ using Visualise
 
     if outputToggle==1
         #run(`python3 visualise.py $("output/"*foldername)`)
-        visualise("output/"*foldername,N,L,σ)
+        visualise("output/"*foldername,N,L,σ,boxSize)
     end
 
 end
