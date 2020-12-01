@@ -17,21 +17,20 @@ using Colors
 using Printf
 
 
-function visualise(foldername,nTrimers,L,σ)
+function visualise(foldername,nTrimers,L,σ,boxSize)
 
-    nImages = 100
     data = readdlm(foldername*"/output.txt",',',Float64)
-    nImages = floor(Int64,size(data)[1]/(2.0*nParticles))
+    nImages = floor(Int64,size(data)[1]/(2.0*nTrimers))
     r = zeros(Float64,nTrimers,3)
     Ω = zeros(Float64,nTrimers,3)
-    #r₁ = fill(Point3(0.0,0.0,0.0),nTrimers)
-    #r₂ = fill(Point3(0.0,0.0,0.0),nTrimers)
 
-
+    set_theme!(show_axis=false,scale_plot=false,resolution=(1600,1600))
+    lim = FRect3D((-boxSize/2.0,-boxSize/2.0,-boxSize/2.0),(boxSize,boxSize,boxSize))
     for i in 0:nImages-1
+        run(`clear`)
         println("Rendering $(i+1)/$nImages")
-        scene = Scene()
-        set_theme!(show_axis = false, scale_plot = false, resolution = (1600, 1600))
+        scene = Scene(limits=lim)
+        scale!(scene, 1, 1, 1)
         r .= data[i*2*nTrimers+1:i*2*nTrimers+nTrimers,:]
         Ω .= data[i*2*nTrimers+nTrimers+1:(i+1)*2*nTrimers,:]
         for j=1:nTrimers
@@ -47,12 +46,54 @@ function visualise(foldername,nTrimers,L,σ)
             r₂ = Point3(r[j,:].+(L/2.0).*Ω[j,:])
             mesh!(Cylinder(r₁,r₂,σ/2.0),color=:blue)
         end
-        save("$foldername/$(@sprintf("%03d",i)).png",scene)
-
-        #meshscatter(objects,color=:green)
-
+        save("$foldername/Tmp$(@sprintf("%03d",i)).png",scene)
     end
+    run(`clear`)
+    println("Animating...")
+    run(`convert -delay 10 -loop 0 $foldername/Tmp"*".png $foldername/animated.gif`)
+end
 
+function visualise(foldername)
+
+    conditions = readdlm(foldername*"/conditions.txt",',')
+    conditionsDict = Dict(conditions[:,1] .=> conditions[:,2])
+    nTrimers = conditionsDict["N"]
+    L = conditionsDict["L"]
+    σ = conditionsDict["σ"]
+    boxSize=conditionsDict["boxSize"]
+    readdlm(foldername*"/output.txt",',',Float64)
+    data = readdlm(foldername*"/output.txt",',',Float64)
+    nImages = floor(Int64,size(data)[1]/(2.0*nTrimers))
+    r = zeros(Float64,nTrimers,3)
+    Ω = zeros(Float64,nTrimers,3)
+
+    set_theme!(show_axis=false,scale_plot=false,resolution=(1600,1600))
+    lim = FRect3D((-boxSize/2.0,-boxSize/2.0,-boxSize/2.0),(boxSize,boxSize,boxSize))
+    for i in 0:nImages-1
+        run(`clear`)
+        println("Rendering $(i+1)/$nImages")
+        scene = Scene(limits=lim)
+        scale!(scene, 1, 1, 1)
+        r .= data[i*2*nTrimers+1:i*2*nTrimers+nTrimers,:]
+        Ω .= data[i*2*nTrimers+nTrimers+1:(i+1)*2*nTrimers,:]
+        for j=1:nTrimers
+            r₁ = Point3(r[j,:].-(L/2.0).*Ω[j,:])
+            r₂ = Point3(r[j,:].-(L/2.0).*Ω[j,:].+(L/3.0).*Ω[j,:])
+            mesh!(Cylinder(r₁,r₂,σ/2.0),color=:red)
+
+            r₁ = Point3(r[j,:].-(L/2.0).*Ω[j,:].+(L/3.0).*Ω[j,:])
+            r₂ = Point3(r[j,:].-(L/2.0).*Ω[j,:].+(2.0*L/3.0).*Ω[j,:])
+            mesh!(Cylinder(r₁,r₂,σ/2.0),color=:green)
+
+            r₁ = Point3(r[j,:].-(L/2.0).*Ω[j,:].+(2.0*L/3.0).*Ω[j,:])
+            r₂ = Point3(r[j,:].+(L/2.0).*Ω[j,:])
+            mesh!(Cylinder(r₁,r₂,σ/2.0),color=:blue)
+        end
+        save("$foldername/Tmp$(@sprintf("%03d",i)).png",scene)
+    end
+    run(`clear`)
+    println("Animating...")
+    run(`convert -delay 10 -loop 0 $foldername/Tmp"*".png $foldername/animated.gif`)
 end
 
 export visualise
