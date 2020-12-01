@@ -1,6 +1,6 @@
 #
 #  ShortestDistance.jl
-#  collagen-diffusive-rods
+#  collagen-rods
 #
 #  Created by Christopher Revell on 07/10/2020.
 #

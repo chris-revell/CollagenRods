@@ -1,6 +1,6 @@
 #
 #  InterRodForces.jl
-#  collagen-diffusive-rods
+#  collagen-rods
 #
 #  Created by Christopher Revell on 15/10/2020.
 #

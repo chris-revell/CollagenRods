@@ -1,3 +1,10 @@
+#
+#  main.jl
+#  collagen-rods
+#
+#  Created by Christopher Revell on 23/11/2020.
+#
+#
 
 push!(LOAD_PATH,"./")
 using Simulate

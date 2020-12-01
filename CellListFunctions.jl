@@ -1,6 +1,6 @@
 #
 #  CellListFunctions.jl
-#  collagen-diffusive-rods
+#  collagen-rods
 #
 #  Created by Christopher Revell on 12/10/2020.
 #

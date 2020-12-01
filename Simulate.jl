@@ -1,3 +1,10 @@
+#
+#  Simulate.jl
+#  collagen-rods
+#
+#  Created by Christopher Revell on 23/11/2020.
+#
+#
 
 module Simulate
 

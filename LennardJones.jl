@@ -1,6 +1,6 @@
 #
 #  LennardJones.jl
-#  collagen-diffusive-rods
+#  collagen-rods
 #
 #  Created by Christopher Revell on 30/10/2020.
 #
