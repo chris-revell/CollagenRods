@@ -6,9 +6,11 @@
 #
 #
 
-push!(LOAD_PATH,"./")
+# Load simulate function
+"./" in LOAD_PATH ? nothing : push!(LOAD_PATH,"./")
 using Simulate
 
+# Define run parameters
 N       = 7     # Number of rods
 L       = 1.0   # Rod length
 σ       = 0.005  # Rod diameter
@@ -17,4 +19,5 @@ Q       = 1.0
 tMax    = 0.01  # Simulation duration
 boxSize = 2.0   # Dimensions of box in which rods are initialised
 
+# Run simulation
 simulate(N,L,σ,ϵ,Q,tMax,boxSize,1)

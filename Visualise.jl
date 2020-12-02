@@ -26,11 +26,15 @@ function visualise(foldername,nTrimers,L,σ,boxSize)
 
     set_theme!(show_axis=false,scale_plot=false,resolution=(1600,1600))
     lim = FRect3D((-boxSize/2.0,-boxSize/2.0,-boxSize/2.0),(boxSize,boxSize,boxSize))
+    scene = Scene(limits=lim)
+    mesh!(Sphere(Point3(zeros(3)),1.0))
+    save("$foldername/Tmp001.png",scene)
+
     for i in 0:nImages-1
         run(`clear`)
         println("Rendering $(i+1)/$nImages")
         scene = Scene(limits=lim)
-        scale!(scene, 1, 1, 1)
+
         r .= data[i*2*nTrimers+1:i*2*nTrimers+nTrimers,:]
         Ω .= data[i*2*nTrimers+nTrimers+1:(i+1)*2*nTrimers,:]
         for j=1:nTrimers
@@ -46,7 +50,7 @@ function visualise(foldername,nTrimers,L,σ,boxSize)
             r₂ = Point3(r[j,:].+(L/2.0).*Ω[j,:])
             mesh!(Cylinder(r₁,r₂,σ/2.0),color=:blue)
         end
-        save("$foldername/Tmp$(@sprintf("%03d",i)).png",scene)
+        save("$foldername/Tmp$(@sprintf("%03d",i+1)).png",scene)
     end
     run(`clear`)
     println("Animating...")
@@ -61,19 +65,25 @@ function visualise(foldername)
     L = conditionsDict["L"]
     σ = conditionsDict["σ"]
     boxSize=conditionsDict["boxSize"]
+
     readdlm(foldername*"/output.txt",',',Float64)
     data = readdlm(foldername*"/output.txt",',',Float64)
     nImages = floor(Int64,size(data)[1]/(2.0*nTrimers))
+
     r = zeros(Float64,nTrimers,3)
     Ω = zeros(Float64,nTrimers,3)
 
     set_theme!(show_axis=false,scale_plot=false,resolution=(1600,1600))
     lim = FRect3D((-boxSize/2.0,-boxSize/2.0,-boxSize/2.0),(boxSize,boxSize,boxSize))
-    for i in 0:nImages-1
+    scene = Scene(limits=lim)
+    mesh!(Sphere(Point3(zeros(3)),1.0))
+    save("$foldername/Tmp001.png",scene)
+
+    for i in 0:5nImages-1
         run(`clear`)
         println("Rendering $(i+1)/$nImages")
         scene = Scene(limits=lim)
-        scale!(scene, 1, 1, 1)
+
         r .= data[i*2*nTrimers+1:i*2*nTrimers+nTrimers,:]
         Ω .= data[i*2*nTrimers+nTrimers+1:(i+1)*2*nTrimers,:]
         for j=1:nTrimers
@@ -89,7 +99,7 @@ function visualise(foldername)
             r₂ = Point3(r[j,:].+(L/2.0).*Ω[j,:])
             mesh!(Cylinder(r₁,r₂,σ/2.0),color=:blue)
         end
-        save("$foldername/Tmp$(@sprintf("%03d",i)).png",scene)
+        save("$foldername/Tmp$(@sprintf("%03d",i+1)).png",scene)
     end
     run(`clear`)
     println("Animating...")
