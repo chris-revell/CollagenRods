@@ -5,6 +5,7 @@
 #  Created by Christopher Revell on 23/11/2020.
 #
 #
+# Function to combine all other functions and run a full simulation given some input parameters. 
 
 module Simulate
 
@@ -43,20 +44,18 @@ using Visualise
         threadRNG[i] = Random.MersenneTwister()
     end
 
-    r  = SizedArray{Tuple{N,3}}((rand(Float64,N,3).-0.5).*boxSize)            # Random initial centrepoint positions of all rods
-    Ω  = SizedArray{Tuple{N,3}}(rand(Float64,N,3).*2.0.-1.0)                  # Random initial orientations of all rods
-    normalize!.(eachslice(Ω,dims=1))
-    #Ω .= Ω./sqrt.(sum(Ω.^2,dims=2))                                           # Normalise magnitude
-    τ  = SizedArray{Tuple{N,3,nthreads()}}(zeros(Float64,N,3,nthreads()))     # Moments on each rod
-    F  = SizedArray{Tuple{N,3,nthreads()}}(zeros(Float64,N,3,nthreads()))     # Forces on each rod
-    ξr = SizedArray{Tuple{N,3}}(zeros(Float64,N,3))                           # Translational stochastic component
-    ξΩ = SizedArray{Tuple{N,3}}(zeros(Float64,N,3))                           # Rotational stochastic component
-    E  = SizedArray{Tuple{N,3,2}}(zeros(Float64,N,3,2))                       # Matrix for orthonormal bases
-    rᵢⱼ= SizedArray{Tuple{3,nthreads()}}(zeros(Float64,3,nthreads()))         # Matric of dummy vectors for later calculations
-    pairsList = Tuple{Int64, Int64}[]                                         # Array storing tuple of particle interaction pairs eg pairsList[2]=(1,5) => 2nd element of array shows that particles 1 and 5 are in interaction range
-    neighbourCells = MVector{13}(Vector{Tuple{Int64,Int64,Int64}}(undef, 13)) # Vector storing 13 neighbouring cells for a given cell
-
-    dummyVectors = SizedArray{Tuple{3,3,nthreads()}}(zeros(Float64,3,3,nthreads()))
+    r  = SizedArray{Tuple{N,3}}((rand(Float64,N,3).-0.5).*boxSize)                 # Random initial centrepoint positions of all rods
+    Ω  = SizedArray{Tuple{N,3}}(rand(Float64,N,3).*2.0.-1.0)                       # Random initial orientations of all rods
+    normalize!.(eachslice(Ω,dims=1))                                               # Normalise magnitude
+    τ  = SizedArray{Tuple{N,3,nthreads()}}(zeros(Float64,N,3,nthreads()))          # Moments on each rod
+    F  = SizedArray{Tuple{N,3,nthreads()}}(zeros(Float64,N,3,nthreads()))          # Forces on each rod
+    ξr = SizedArray{Tuple{N,3}}(zeros(Float64,N,3))                                # Translational stochastic component
+    ξΩ = SizedArray{Tuple{N,3}}(zeros(Float64,N,3))                                # Rotational stochastic component
+    E  = SizedArray{Tuple{N,3,2}}(zeros(Float64,N,3,2))                            # Matrix for orthonormal bases
+    rᵢⱼ= SizedArray{Tuple{3,nthreads()}}(zeros(Float64,3,nthreads()))              # Matric of dummy vectors for later calculations
+    pairsList = Tuple{Int64, Int64}[]                                              # Array storing tuple of particle interaction pairs eg pairsList[2]=(1,5) => 2nd element of array shows that particles 1 and 5 are in interaction range
+    neighbourCells = MVector{13}(Vector{Tuple{Int64,Int64,Int64}}(undef, 13))      # Vector storing 13 neighbouring cells for a given cell
+    dummyVectors = SizedArray{Tuple{3,3,nthreads()}}(zeros(Float64,3,3,nthreads()))# Array of vectors to reuse in calculations and avoid allocations
 
     electrostaticPairs = SVector{8}([(1,3),(2,4),(3,5),(4,6),(5,7),(6,8),(7,9),(9,1)])
 
@@ -102,7 +101,6 @@ using Visualise
     end
 
     if outputToggle==1
-        #run(`python3 visualise.py $("output/"*foldername)`)
         visualise("output/"*foldername,N,L,σ,boxSize)
     end
 

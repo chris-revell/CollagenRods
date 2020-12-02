@@ -5,6 +5,7 @@
 #  Created by Christopher Revell on 07/10/2020.
 #
 #
+# Function to calculate the translational and rotational stochastic term for each particle 
 
 module BrownianMotion
 

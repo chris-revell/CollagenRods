@@ -5,6 +5,7 @@
 #  Created by Christopher Revell on 15/10/2020.
 #
 #
+# Function to save run data to file as a list of positions and orientations at each timestep.
 
 module OutputData
 

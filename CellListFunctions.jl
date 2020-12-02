@@ -5,8 +5,8 @@
 #  Created by Christopher Revell on 12/10/2020.
 #
 #
-
-# Functions from https://discourse.julialang.org/t/cell-list-algorithm-is-slower-than-double-for-loop/36621/2
+# Functions to allocate particle positions to cell lists in a grid, and hence produce a list of neighbour pairs.
+# Derived from https://discourse.julialang.org/t/cell-list-algorithm-is-slower-than-double-for-loop/36621/2
 
 module CellListFunctions
 

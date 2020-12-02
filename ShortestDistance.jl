@@ -5,6 +5,7 @@
 #  Created by Christopher Revell on 07/10/2020.
 #
 #
+# Functions to find the shortest distances between two rods and between a point and a rod. 
 
 module ShortestDistance
 

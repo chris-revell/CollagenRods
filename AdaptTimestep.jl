@@ -5,6 +5,8 @@
 #  Created by Christopher Revell on 08/10/2020.
 #
 #
+# Function to adjust timestep in integration given current forces
+# and stochasic component values to ensure that no particle can move through another 
 
 module AdaptTimestep
 

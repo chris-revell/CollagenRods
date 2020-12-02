@@ -5,6 +5,7 @@
 #  Created by Christopher Revell on 30/10/2020.
 #
 #
+# Function to calculate the Lennard Jones force for a given separation, potential well depth, and equilibrium separation
 
 module LennardJones
 

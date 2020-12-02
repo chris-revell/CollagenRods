@@ -5,6 +5,7 @@
 #  Created by Christopher Revell on 22/11/2020.
 #
 #
+# Functions to visualise results using Makie. 
 
 module Visualise
 
@@ -79,7 +80,7 @@ function visualise(foldername)
     mesh!(Sphere(Point3(zeros(3)),1.0))
     save("$foldername/Tmp001.png",scene)
 
-    for i in 0:5nImages-1
+    for i in 0:nImages-1
         run(`clear`)
         println("Rendering $(i+1)/$nImages")
         scene = Scene(limits=lim)

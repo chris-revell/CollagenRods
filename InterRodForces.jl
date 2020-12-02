@@ -5,6 +5,7 @@
 #  Created by Christopher Revell on 15/10/2020.
 #
 #
+# Function to calculate forces and moments between all particles across multiple threads. 
 
 module InterRodForces
 

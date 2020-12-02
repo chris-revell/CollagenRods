@@ -5,6 +5,7 @@
 #  Created by Christopher Revell on 07/10/2020.
 #
 #
+# Function to calculate perpendicular vectors around each rod given that rod's orientation. 
 
 module OrthonormalBases
 

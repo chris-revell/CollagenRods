@@ -5,6 +5,7 @@
 #  Created by Christopher Revell on 15/10/2020.
 #
 #
+# Function to create a directory in which to store run results, with directory name given by current time 
 
 module CreateRunDirectory
 
