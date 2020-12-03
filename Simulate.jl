@@ -36,6 +36,7 @@ using Visualise
     DParallel         = D₀*(log(p)+-0.207+0.980/p-0.133/p^2)/2π
     DPerpendicular    = D₀*(log(p)+0.839+0.185/p+0.233/p^2)/4π
     DRotation         = 3*D₀*(log(p)-0.662+0.917/p-0.05/p^2)/(π*L^2)
+    # Interaction threshold for cell list grid
     interactionThresh = 1.3*L
 
     # Create random number generators for each thread
@@ -44,19 +45,20 @@ using Visualise
         threadRNG[i] = Random.MersenneTwister()
     end
 
-    r  = SizedArray{Tuple{N,3}}((rand(Float64,N,3).-0.5).*boxSize)                 # Random initial centrepoint positions of all rods
-    Ω  = SizedArray{Tuple{N,3}}(rand(Float64,N,3).*2.0.-1.0)                       # Random initial orientations of all rods
+    r         = SizedArray{Tuple{N,3}}((rand(Float64,N,3).-0.5).*boxSize)          # Random initial centrepoint positions of all rods
+    Ω         = SizedArray{Tuple{N,3}}(rand(Float64,N,3).*2.0.-1.0)                # Random initial orientations of all rods
     normalize!.(eachslice(Ω,dims=1))                                               # Normalise magnitude
-    τ  = SizedArray{Tuple{N,3,nthreads()}}(zeros(Float64,N,3,nthreads()))          # Moments on each rod
-    F  = SizedArray{Tuple{N,3,nthreads()}}(zeros(Float64,N,3,nthreads()))          # Forces on each rod
-    ξr = SizedArray{Tuple{N,3}}(zeros(Float64,N,3))                                # Translational stochastic component
-    ξΩ = SizedArray{Tuple{N,3}}(zeros(Float64,N,3))                                # Rotational stochastic component
-    E  = SizedArray{Tuple{N,2,3}}(zeros(Float64,N,2,3))                            # Matrix for orthonormal bases
-    rᵢⱼ= SizedArray{Tuple{3,nthreads()}}(zeros(Float64,3,nthreads()))              # Matric of dummy vectors for later calculations
+    τ         = SizedArray{Tuple{N,3,nthreads()}}(zeros(Float64,N,3,nthreads()))   # Moments on each rod
+    F         = SizedArray{Tuple{N,3,nthreads()}}(zeros(Float64,N,3,nthreads()))   # Forces on each rod
+    ξr        = SizedArray{Tuple{N,3}}(zeros(Float64,N,3))                         # Translational stochastic component
+    ξΩ        = SizedArray{Tuple{N,3}}(zeros(Float64,N,3))                         # Rotational stochastic component
+    E         = SizedArray{Tuple{N,2,3}}(zeros(Float64,N,2,3))                     # Matrix for orthonormal bases
+    rᵢⱼ       = SizedArray{Tuple{3,nthreads()}}(zeros(Float64,3,nthreads()))       # Matrix of dummy vectors for later calculations
+    # TODO Set fixed size for pairsList
     pairsList = Tuple{Int64, Int64}[]                                              # Array storing tuple of particle interaction pairs eg pairsList[2]=(1,5) => 2nd element of array shows that particles 1 and 5 are in interaction range
-    neighbourCells = MVector{13}(Vector{Tuple{Int64,Int64,Int64}}(undef, 13))      # Vector storing 13 neighbouring cells for a given cell
-    dummyVectors = SizedArray{Tuple{3,3,nthreads()}}(zeros(Float64,3,3,nthreads()))# Array of vectors to reuse in calculations and avoid allocations
-    xVector = SVector{3}([1.0,0.0,0.0])
+    neighbourCells= MVector{13}(Vector{Tuple{Int64,Int64,Int64}}(undef, 13))      # Vector storing 13 neighbouring cells for a given cell
+    dummyVectors  = SizedArray{Tuple{3,3,nthreads()}}(zeros(Float64,3,3,nthreads()))# Array of vectors to reuse in calculations and avoid allocations
+    xVector        = SVector{3}([1.0,0.0,0.0])                                      # Vector along x axis for orthonormal basis calculations
     electrostaticPairs = SVector{8}([(1,3),(2,4),(3,5),(4,6),(5,7),(6,8),(7,9),(9,1)])
 
     if outputToggle==1
@@ -70,7 +72,7 @@ using Visualise
     while t < tMax
 
         # Create list of particle interaction pairs based on cell lists algorithm
-        pairsList = findPairs!(N,r,interactionThresh,neighbourCells)
+        pairsList = findPairs!(N,r,interactionThresh,neighbourCells,rᵢⱼ[:,1])
 
         # Find perpendicular basis vectors for each rod
         orthonormalBases!(N,Ω,E,xVector)
