@@ -5,7 +5,7 @@
 #  Created by Christopher Revell on 23/11/2020.
 #
 #
-# Function to combine all other functions and run a full simulation given some input parameters. 
+# Function to combine all other functions and run a full simulation given some input parameters.
 
 module Simulate
 
@@ -51,12 +51,12 @@ using Visualise
     F  = SizedArray{Tuple{N,3,nthreads()}}(zeros(Float64,N,3,nthreads()))          # Forces on each rod
     ξr = SizedArray{Tuple{N,3}}(zeros(Float64,N,3))                                # Translational stochastic component
     ξΩ = SizedArray{Tuple{N,3}}(zeros(Float64,N,3))                                # Rotational stochastic component
-    E  = SizedArray{Tuple{N,3,2}}(zeros(Float64,N,3,2))                            # Matrix for orthonormal bases
+    E  = SizedArray{Tuple{N,2,3}}(zeros(Float64,N,2,3))                            # Matrix for orthonormal bases
     rᵢⱼ= SizedArray{Tuple{3,nthreads()}}(zeros(Float64,3,nthreads()))              # Matric of dummy vectors for later calculations
     pairsList = Tuple{Int64, Int64}[]                                              # Array storing tuple of particle interaction pairs eg pairsList[2]=(1,5) => 2nd element of array shows that particles 1 and 5 are in interaction range
     neighbourCells = MVector{13}(Vector{Tuple{Int64,Int64,Int64}}(undef, 13))      # Vector storing 13 neighbouring cells for a given cell
     dummyVectors = SizedArray{Tuple{3,3,nthreads()}}(zeros(Float64,3,3,nthreads()))# Array of vectors to reuse in calculations and avoid allocations
-
+    xVector = SVector{3}([1.0,0.0,0.0])
     electrostaticPairs = SVector{8}([(1,3),(2,4),(3,5),(4,6),(5,7),(6,8),(7,9),(9,1)])
 
     if outputToggle==1
@@ -73,7 +73,7 @@ using Visualise
         pairsList = findPairs!(N,r,interactionThresh,neighbourCells)
 
         # Find perpendicular basis vectors for each rod
-        orthonormalBases!(N,Ω,E)
+        orthonormalBases!(N,Ω,E,xVector)
 
         # Calculate attractive and repulsive forces between rods
         interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q,dummyVectors,electrostaticPairs)
