@@ -24,7 +24,6 @@ using AdaptTimestep
 using CellListFunctions
 using CreateRunDirectory
 using OutputData
-using Visualise
 
 @inline @views function simulate(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
 
@@ -101,10 +100,6 @@ using Visualise
         # Refresh force and moment arrays
         fill!(τ,0.0)
         fill!(F,0.0)
-    end
-
-    if outputToggle==1
-        visualise("output/"*foldername,N,L,σ,boxSize)
     end
 
 end
