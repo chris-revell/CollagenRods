@@ -11,13 +11,13 @@
 using Simulate
 
 # Define run parameters
-N       = 2     # Number of rods
+N       = 56    # Number of rods
 L       = 1.0   # Rod length
-σ       = 0.005  # Rod diameter
-ϵ       = 1.0   # Hard core repulsion L-J potential depth
-Q       = 10.0
-tMax    = 0.01  # Simulation duration
-boxSize = 0.5   # Dimensions of box in which rods are initialised
+σ       = 0.01  # Rod diameter
+ϵ       = 10.0  # Hard core repulsion L-J potential depth
+Q       = 10.0  #
+tMax    = 1.0   # Simulation duration
+boxSize = 4.0   # Dimensions of box in which rods are initialised
 
 # Run simulation
 simulate(N,L,σ,ϵ,Q,tMax,boxSize,1)

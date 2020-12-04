@@ -24,7 +24,7 @@ using Base.Threads
     blackWidth    = L/(2*8)
 
     covalentThresh      = 3.0*σ
-    electrostaticThresh = 30.0*σ
+    electrostaticThresh = 100.0*σ
 
     @threads for (x,y) in pairsList
 

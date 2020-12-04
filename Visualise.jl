@@ -33,7 +33,7 @@ function visualise(foldername,nTrimers,L,σ,boxSize)
     save("$foldername/Tmp001.png",scene)
 
     for i in 0:nImages-1
-        run(`clear`)
+
         println("Rendering $(i+1)/$nImages")
         scene = Scene(limits=lim)
 
@@ -59,7 +59,7 @@ function visualise(foldername,nTrimers,L,σ,boxSize)
         end
         save("$foldername/Tmp$(@sprintf("%03d",i+1)).png",scene)
     end
-    run(`clear`)
+
     println("Animating...")
     run(`convert -delay 10 -loop 0 $foldername/Tmp"*".png $foldername/animated.gif`)
 end
@@ -88,7 +88,7 @@ function visualise(foldername)
     save("$foldername/Tmp001.png",scene)
 
     for i in 0:nImages-1
-        run(`clear`)
+
         println("Rendering $(i+1)/$nImages")
         scene = Scene(limits=lim)
 
@@ -114,7 +114,7 @@ function visualise(foldername)
         end
         save("$foldername/Tmp$(@sprintf("%03d",i+1)).png",scene)
     end
-    run(`clear`)
+
     println("Animating...")
     run(`convert -delay 10 -loop 0 $foldername/Tmp"*".png $foldername/animated.gif`)
 end
