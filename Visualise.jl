@@ -41,16 +41,21 @@ function visualise(foldername,nTrimers,L,σ,boxSize)
         Ω .= data[i*2*nTrimers+nTrimers+1:(i+1)*2*nTrimers,:]
         for j=1:nTrimers
             r₁ = Point3(r[j,:].-(L/2.0).*Ω[j,:])
-            r₂ = Point3(r[j,:].-(L/2.0).*Ω[j,:].+(L/3.0).*Ω[j,:])
-            mesh!(Cylinder(r₁,r₂,σ/2.0),color=:red)
-
-            r₁ = Point3(r[j,:].-(L/2.0).*Ω[j,:].+(L/3.0).*Ω[j,:])
-            r₂ = Point3(r[j,:].-(L/2.0).*Ω[j,:].+(2.0*L/3.0).*Ω[j,:])
-            mesh!(Cylinder(r₁,r₂,σ/2.0),color=:green)
-
-            r₁ = Point3(r[j,:].-(L/2.0).*Ω[j,:].+(2.0*L/3.0).*Ω[j,:])
             r₂ = Point3(r[j,:].+(L/2.0).*Ω[j,:])
-            mesh!(Cylinder(r₁,r₂,σ/2.0),color=:blue)
+            mesh!(Cylinder(r₁,r₂,σ/2.0),color=:green)
+            mesh!(Sphere(r₁,σ),color=:red)
+            mesh!(Sphere(r₂,σ),color=:blue)
+            # r₁ = Point3(r[j,:].-(L/2.0).*Ω[j,:])
+            # r₂ = Point3(r[j,:].-(L/2.0).*Ω[j,:].+(L/3.0).*Ω[j,:])
+            # mesh!(Cylinder(r₁,r₂,σ/2.0),color=:red)
+            #
+            # r₁ = Point3(r[j,:].-(L/2.0).*Ω[j,:].+(L/3.0).*Ω[j,:])
+            # r₂ = Point3(r[j,:].-(L/2.0).*Ω[j,:].+(2.0*L/3.0).*Ω[j,:])
+            # mesh!(Cylinder(r₁,r₂,σ/2.0),color=:green)
+            #
+            # r₁ = Point3(r[j,:].-(L/2.0).*Ω[j,:].+(2.0*L/3.0).*Ω[j,:])
+            # r₂ = Point3(r[j,:].+(L/2.0).*Ω[j,:])
+            # mesh!(Cylinder(r₁,r₂,σ/2.0),color=:blue)
         end
         save("$foldername/Tmp$(@sprintf("%03d",i+1)).png",scene)
     end
@@ -91,16 +96,21 @@ function visualise(foldername)
         Ω .= data[i*2*nTrimers+nTrimers+1:(i+1)*2*nTrimers,:]
         for j=1:nTrimers
             r₁ = Point3(r[j,:].-(L/2.0).*Ω[j,:])
-            r₂ = Point3(r[j,:].-(L/2.0).*Ω[j,:].+(L/3.0).*Ω[j,:])
-            mesh!(Cylinder(r₁,r₂,σ/2.0),color=:red)
-
-            r₁ = Point3(r[j,:].-(L/2.0).*Ω[j,:].+(L/3.0).*Ω[j,:])
-            r₂ = Point3(r[j,:].-(L/2.0).*Ω[j,:].+(2.0*L/3.0).*Ω[j,:])
-            mesh!(Cylinder(r₁,r₂,σ/2.0),color=:green)
-
-            r₁ = Point3(r[j,:].-(L/2.0).*Ω[j,:].+(2.0*L/3.0).*Ω[j,:])
             r₂ = Point3(r[j,:].+(L/2.0).*Ω[j,:])
-            mesh!(Cylinder(r₁,r₂,σ/2.0),color=:blue)
+            mesh!(Cylinder(r₁,r₂,σ/2.0),color=:green)
+            mesh!(Sphere(r₁,σ),color=:red)
+            mesh!(Sphere(r₂,σ),color=:blue)
+            # r₁ = Point3(r[j,:].-(L/2.0).*Ω[j,:])
+            # r₂ = Point3(r[j,:].-(L/2.0).*Ω[j,:].+(L/3.0).*Ω[j,:])
+            # mesh!(Cylinder(r₁,r₂,σ/2.0),color=:red)
+            #
+            # r₁ = Point3(r[j,:].-(L/2.0).*Ω[j,:].+(L/3.0).*Ω[j,:])
+            # r₂ = Point3(r[j,:].-(L/2.0).*Ω[j,:].+(2.0*L/3.0).*Ω[j,:])
+            # mesh!(Cylinder(r₁,r₂,σ/2.0),color=:green)
+            #
+            # r₁ = Point3(r[j,:].-(L/2.0).*Ω[j,:].+(2.0*L/3.0).*Ω[j,:])
+            # r₂ = Point3(r[j,:].+(L/2.0).*Ω[j,:])
+            # mesh!(Cylinder(r₁,r₂,σ/2.0),color=:blue)
         end
         save("$foldername/Tmp$(@sprintf("%03d",i+1)).png",scene)
     end
