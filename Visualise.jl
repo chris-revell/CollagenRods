@@ -5,7 +5,7 @@
 #  Created by Christopher Revell on 22/11/2020.
 #
 #
-# Functions to visualise results using Makie. 
+# Functions to visualise results using Makie.
 
 module Visualise
 
@@ -26,7 +26,8 @@ function visualise(foldername,nTrimers,L,σ,boxSize)
     Ω = zeros(Float64,nTrimers,3)
 
     set_theme!(show_axis=false,scale_plot=false,resolution=(1600,1600))
-    lim = FRect3D((-boxSize/2.0,-boxSize/2.0,-boxSize/2.0),(boxSize,boxSize,boxSize))
+    lims = max(boxSize,L)
+    lim = FRect3D((-lims/2.0,-lims/2.0,-lims/2.0),(lims,lims,lims))
     scene = Scene(limits=lim)
     mesh!(Sphere(Point3(zeros(3)),1.0))
     save("$foldername/Tmp001.png",scene)
@@ -75,7 +76,8 @@ function visualise(foldername)
     Ω = zeros(Float64,nTrimers,3)
 
     set_theme!(show_axis=false,scale_plot=false,resolution=(1600,1600))
-    lim = FRect3D((-boxSize/2.0,-boxSize/2.0,-boxSize/2.0),(boxSize,boxSize,boxSize))
+    lims = max(boxSize,L)
+    lim = FRect3D((-lims/2.0,-lims/2.0,-lims/2.0),(lims,lims,lims))
     scene = Scene(limits=lim)
     mesh!(Sphere(Point3(zeros(3)),1.0))
     save("$foldername/Tmp001.png",scene)
