@@ -59,6 +59,7 @@ using Visualise
     neighbourCells= MVector{13}(Vector{Tuple{Int64,Int64,Int64}}(undef, 13))      # Vector storing 13 neighbouring cells for a given cell
     dummyVectors  = SizedArray{Tuple{3,3,nthreads()}}(zeros(Float64,3,3,nthreads()))# Array of vectors to reuse in calculations and avoid allocations
     xVector        = SVector{3}([1.0,0.0,0.0])                                      # Vector along x axis for orthonormal basis calculations
+    allRands    = MVector{5}(zeros(Float64,5))
     electrostaticPairs = SVector{8}([(1,3),(2,4),(3,5),(4,6),(5,7),(6,8),(7,9),(9,1)])
 
     if outputToggle==1
@@ -81,7 +82,7 @@ using Visualise
         interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q,dummyVectors,electrostaticPairs)
 
         # Calculate stochastic component of Langevin equation
-        brownianMotion!(N,Ω,ξr,ξΩ,E,DParallel,DPerpendicular,DRotation,threadRNG)
+        brownianMotion!(N,Ω,ξr,ξΩ,E,DParallel,DPerpendicular,DRotation,threadRNG,allRands)
 
         # Adapt timestep according to force magnitudes
         Δt = adaptTimestep!(N,F,τ,ξr,ξΩ,σ,kT,L)
