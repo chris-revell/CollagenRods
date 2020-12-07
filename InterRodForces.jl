@@ -39,7 +39,7 @@ using Base.Threads
 
 
         # ---- Covalent Forces ----
-        covalentForces!(N,r,Ω,E,F,τ,rᵢⱼ,x,y,L,dummyVectors,tID,DParallel,DPerpendicular,DRotation,kT,ϵ,σ,Δu,covalentThresh)
+        covalentForces!(N,r,Ω,E,F,τ,rᵢⱼ,x,y,L,dummyVectors,tID,DParallel,DPerpendicular,DRotation,kT,ϵ,σ,Δu,covalentThresh,Q)
 
     end
 
