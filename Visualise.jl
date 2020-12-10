@@ -18,15 +18,15 @@ using Colors
 using Printf
 
 
-function visualise(foldername,nTrimers,L,σ,boxSize)
+function visualise(foldername,nMonomers,L,σ,containerHeight)
 
     data = readdlm(foldername*"/output.txt",',',Float64)
-    nImages = floor(Int64,size(data)[1]/(2.0*nTrimers))
-    r = zeros(Float64,nTrimers,3)
-    Ω = zeros(Float64,nTrimers,3)
+    nImages = floor(Int64,size(data)[1]/(2.0*nMonomers))
+    r = zeros(Float64,nMonomers,3)
+    Ω = zeros(Float64,nMonomers,3)
 
     set_theme!(show_axis=false,scale_plot=false,resolution=(1600,1600))
-    lims = max(boxSize,L)
+    lims = max(containerHeight,L)
     lim = FRect3D((-lims/2.0,-lims/2.0,-lims/2.0),(lims,lims,lims))
     scene = Scene(limits=lim)
     mesh!(Sphere(Point3(zeros(3)),1.0))
@@ -37,9 +37,9 @@ function visualise(foldername,nTrimers,L,σ,boxSize)
         println("Rendering $(i+1)/$nImages")
         scene = Scene(limits=lim)
 
-        r .= data[i*2*nTrimers+1:i*2*nTrimers+nTrimers,:]
-        Ω .= data[i*2*nTrimers+nTrimers+1:(i+1)*2*nTrimers,:]
-        for j=1:nTrimers
+        r .= data[i*2*nMonomers+1:i*2*nMonomers+nMonomers,:]
+        Ω .= data[i*2*nMonomers+nMonomers+1:(i+1)*2*nMonomers,:]
+        for j=1:nMonomers
             r₁ = Point3(r[j,:].-(L/2.0).*Ω[j,:])
             r₂ = Point3(r[j,:].+(L/2.0).*Ω[j,:])
             mesh!(Cylinder(r₁,r₂,σ/2.0),color=:green)
@@ -68,20 +68,20 @@ function visualise(foldername)
 
     conditions = readdlm(foldername*"/conditions.txt",',')
     conditionsDict = Dict(conditions[:,1] .=> conditions[:,2])
-    nTrimers = conditionsDict["N"]
+    nMonomers = conditionsDict["N"]
     L = conditionsDict["L"]
     σ = conditionsDict["σ"]
-    boxSize=conditionsDict["boxSize"]
+    containerHeight=conditionsDict["containerHeight"]
 
     readdlm(foldername*"/output.txt",',',Float64)
     data = readdlm(foldername*"/output.txt",',',Float64)
-    nImages = floor(Int64,size(data)[1]/(2.0*nTrimers))
+    nImages = floor(Int64,size(data)[1]/(2.0*nMonomers))
 
-    r = zeros(Float64,nTrimers,3)
-    Ω = zeros(Float64,nTrimers,3)
+    r = zeros(Float64,nMonomers,3)
+    Ω = zeros(Float64,nMonomers,3)
 
     set_theme!(show_axis=false,scale_plot=false,resolution=(1600,1600))
-    lims = max(boxSize,L)
+    lims = max(containerHeight,L)
     lim = FRect3D((-lims/2.0,-lims/2.0,-lims/2.0),(lims,lims,lims))
     scene = Scene(limits=lim)
     mesh!(Sphere(Point3(zeros(3)),1.0))
@@ -92,9 +92,9 @@ function visualise(foldername)
         println("Rendering $(i+1)/$nImages")
         scene = Scene(limits=lim)
 
-        r .= data[i*2*nTrimers+1:i*2*nTrimers+nTrimers,:]
-        Ω .= data[i*2*nTrimers+nTrimers+1:(i+1)*2*nTrimers,:]
-        for j=1:nTrimers
+        r .= data[i*2*nMonomers+1:i*2*nMonomers+nMonomers,:]
+        Ω .= data[i*2*nMonomers+nMonomers+1:(i+1)*2*nMonomers,:]
+        for j=1:nMonomers
             r₁ = Point3(r[j,:].-(L/2.0).*Ω[j,:])
             r₂ = Point3(r[j,:].+(L/2.0).*Ω[j,:])
             mesh!(Cylinder(r₁,r₂,σ/2.0),color=:green)
