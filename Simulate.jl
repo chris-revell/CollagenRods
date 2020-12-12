@@ -27,6 +27,7 @@ using OutputData
 using Visualise
 using Initialise
 using Integrate
+using BoundaryForces
 
 @inline @views function simulate(N,L,σ,ϵ,Q,tMax,containerRadius,containerVolume,outputToggle,renderToggle)
 
@@ -52,7 +53,7 @@ using Integrate
     allRands           = MVector{5}(zeros(Float64,5))
     electrostaticPairs = SVector{8}([(1,3),(2,4),(3,5),(4,6),(5,7),(6,8),(7,9),(9,1)])
 
-    p,D₀,DParallel,DPerpendicular,DRotation,foldername,outfile,threadRNG = initialise!(L,σ,ϵ,kT,Q,η,N,tMax,containerRadius,containerVolume,interactionThresh,r,Ω,outputToggle)
+    D₀,DParallel,DPerpendicular,DRotation,foldername,outfile,threadRNG = initialise!(L,σ,ϵ,kT,Q,η,N,tMax,containerRadius,containerVolume,interactionThresh,r,Ω,outputToggle)
 
     # Iterate until max run time reached
     t = 0.0 # Initialise system time
@@ -67,6 +68,9 @@ using Integrate
         # Calculate attractive and repulsive forces between rods
         interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q,dummyVectors,electrostaticPairs)
 
+        #
+        boundaryForces!(N,L,r,Ω,F,τ,E,containerRadius,σ,ϵ,DParallel,DPerpendicular,DRotation,kT)
+
         # Calculate stochastic component of Langevin equation
         brownianMotion!(N,Ω,ξr,ξΩ,E,DParallel,DPerpendicular,DRotation,threadRNG,allRands)
 
@@ -74,7 +78,7 @@ using Integrate
         Δt = adaptTimestep!(N,F,τ,ξr,ξΩ,σ,kT,L)
 
         # Forward Euler integration of overdamped Langevin equation for position and orientation, given drift and stochastic terms.
-        t = integrate!(r,Ω,F,τ,ξr,ξΩ,Δt)
+        t = integrate!(r,Ω,F,τ,ξr,ξΩ,t,Δt)
 
         if t%(tMax/100.0) < Δt && outputToggle==1
             outputData(r,Ω,outfile,t,tMax)

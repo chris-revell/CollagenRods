@@ -51,7 +51,7 @@ using CreateRunDirectory
         threadRNG[i] = Random.MersenneTwister()
     end
 
-    return p, D₀, DParallel, DPerpendicular, DRotation, foldername, outfile, threadRNG
+    return D₀, DParallel, DPerpendicular, DRotation, foldername, outfile, threadRNG
 end
 
 export initialise!

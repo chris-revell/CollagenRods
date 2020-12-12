@@ -33,10 +33,8 @@ using Base.Threads
         # ---- RepulsiveForces ----
         repulsiveForces!(N,r,Ω,E,F,τ,rᵢⱼ,x,y,L,dummyVectors,tID,DParallel,DPerpendicular,DRotation,kT,ϵ,σ)
 
-
         # ---- Electrostatic ----
         electrostaticForces!(N,r,Ω,E,F,τ,rᵢⱼ,x,y,dummyVectors,tID,DParallel,DPerpendicular,DRotation,kT,ϵ,σ,electrostaticThresh,electrostaticPairs,blackWidth,colouredWidth,Q)
-
 
         # ---- Covalent Forces ----
         covalentForces!(N,r,Ω,E,F,τ,rᵢⱼ,x,y,L,dummyVectors,tID,DParallel,DPerpendicular,DRotation,kT,ϵ,σ,Δu,covalentThresh,Q)

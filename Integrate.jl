@@ -11,7 +11,7 @@ module Integrate
 
 using LinearAlgebra
 
-@inline @views function integrate!(r,Ω,F,τ,ξr,ξΩ,Δt)
+@inline @views function integrate!(r,Ω,F,τ,ξr,ξΩ,t,Δt)
 
     Ω .+= τ[:,:,1].*Δt .+ ξΩ.*sqrt(Δt)
     normalize!.(eachslice(Ω,dims=1))
