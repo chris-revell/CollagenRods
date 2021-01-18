@@ -68,7 +68,7 @@ using BoundaryForces
         # Calculate attractive and repulsive forces between rods
         interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q,dummyVectors,electrostaticPairs)
 
-        #
+        # Calculate forces on rods from system boundary
         boundaryForces!(N,L,r,Ω,F,τ,E,containerRadius,σ,ϵ,DParallel,DPerpendicular,DRotation,kT)
 
         # Calculate stochastic component of Langevin equation
@@ -76,7 +76,7 @@ using BoundaryForces
 
         # Adapt timestep according to force magnitudes
         Δt = adaptTimestep!(N,F,τ,ξr,ξΩ,σ,kT,L)
-
+        
         # Forward Euler integration of overdamped Langevin equation for position and orientation, given drift and stochastic terms.
         t = integrate!(r,Ω,F,τ,ξr,ξΩ,t,Δt)
 
@@ -89,7 +89,7 @@ using BoundaryForces
         fill!(F,0.0)
     end
 
-    outputToggle==1 && renderToggle==1 ? visualise("output/"*foldername) : nothing
+    outputToggle==1 && renderToggle==1 ? run(`python3 visualise.py $("output/"*foldername)`) : nothing
 
 end
 

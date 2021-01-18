@@ -11,14 +11,14 @@
 using Simulate
 
 # Define run parameters
-N               = 4    # Number of rods
-L               = 1.0   # Rod length
+N               = 20    # Number of rods
+L               = 0.5   # Rod length
 σ               = 0.01  # Rod diameter
 ϵ               = 10.0  # Hard core repulsion L-J potential depth
 Q               = 10.0  # Electrostatic charge
-tMax            = 0.1# Simulation duration
-containerRadius = 1.0   # Radius of container in which rods are initialised
-containerVolume = 4.0 # Volume of container in which rods are initialised
+tMax            = 0.1   # Simulation duration
+containerRadius = 0.3   # Radius of container in which rods are initialised
+containerVolume = 1.0   # Volume of container in which rods are initialised
 outputToggle    = 1     # Toggle controlling whether data are saved to file
 renderToggle    = 1     # Toggle controlling whether data are rendered to images
 

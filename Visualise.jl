@@ -18,7 +18,7 @@ using Colors
 using Printf
 
 
-function visualise(foldername,nMonomers,L,σ,containerHeight)
+function visualise(foldername,nMonomers,L,σ,containerRadius)
 
     data = readdlm(foldername*"/output.txt",',',Float64)
     nImages = floor(Int64,size(data)[1]/(2.0*nMonomers))
@@ -72,6 +72,7 @@ function visualise(foldername)
     L = conditionsDict["L"]
     σ = conditionsDict["σ"]
     containerHeight=conditionsDict["containerHeight"]
+    containerRadius=conditionsDict["containerRadius"]
 
     readdlm(foldername*"/output.txt",',',Float64)
     data = readdlm(foldername*"/output.txt",',',Float64)
@@ -91,6 +92,8 @@ function visualise(foldername)
 
         println("Rendering $(i+1)/$nImages")
         scene = Scene(limits=lim)
+
+        mesh!(Cylinder(Point3([0.0,0.0,containerRadius]),Point3([0.0,0.0,-containerRadius]),containerRadius),color=(:green, 0.1), transparency = true)
 
         r .= data[i*2*nMonomers+1:i*2*nMonomers+nMonomers,:]
         Ω .= data[i*2*nMonomers+nMonomers+1:(i+1)*2*nMonomers,:]
