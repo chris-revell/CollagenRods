@@ -17,14 +17,11 @@ using CovalentForces
 using ElectrostaticForces
 using Base.Threads
 
-@inline @views function interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q,dummyVectors,electrostaticPairs)
+@inline @views function interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Qₑ,Qcov,dummyVectors,electrostaticPairs,electroThresh,covalentThresh)
 
     Δu            = (1.8/4.4)*L
     colouredWidth = L/10
     blackWidth    = L/(2*8)
-
-    covalentThresh      = 3.0*σ
-    electrostaticThresh = 100.0*σ
 
     @threads for (x,y) in pairsList
 
@@ -34,10 +31,10 @@ using Base.Threads
         repulsiveForces!(N,r,Ω,E,F,τ,rᵢⱼ,x,y,L,dummyVectors,tID,DParallel,DPerpendicular,DRotation,kT,ϵ,σ)
 
         # ---- Electrostatic ----
-        electrostaticForces!(N,r,Ω,E,F,τ,rᵢⱼ,x,y,dummyVectors,tID,DParallel,DPerpendicular,DRotation,kT,ϵ,σ,electrostaticThresh,electrostaticPairs,blackWidth,colouredWidth,Q)
+        electrostaticForces!(N,r,Ω,E,F,τ,rᵢⱼ,x,y,dummyVectors,tID,DParallel,DPerpendicular,DRotation,kT,ϵ,σ,electroThresh,electrostaticPairs,blackWidth,colouredWidth,Qₑ)
 
         # ---- Covalent Forces ----
-        covalentForces!(N,r,Ω,E,F,τ,rᵢⱼ,x,y,L,dummyVectors,tID,DParallel,DPerpendicular,DRotation,kT,ϵ,σ,Δu,covalentThresh,Q)
+        covalentForces!(N,r,Ω,E,F,τ,rᵢⱼ,x,y,L,dummyVectors,tID,DParallel,DPerpendicular,DRotation,kT,ϵ,σ,Δu,covalentThresh,Qcov)
 
     end
 

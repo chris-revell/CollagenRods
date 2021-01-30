@@ -16,17 +16,17 @@ module CellListFunctions
     const Intx2 = Tuple{Int64, Int64}
     const Intx3 = Tuple{Int64, Int64, Int64}
 
-    @inline @views function findPairs!(N, r, interactionThresh, neighbourCells, dx)
+    @inline @views function findPairs!(N, r, cellListThresh, neighbourCells, dx)
 
         pairsList = Intx2[] # Array of tuples storing neighbour pairs
         #boundaryList = Intx3[]
 
         # Allocate all particles in matrix r to grid points
-        cellLists = gridAllocate(r,N,interactionThresh)
+        cellLists = gridAllocate(r,N,cellListThresh)
 
         for key in keys(cellLists)
-            sameCellPairs!(cellLists[key], pairsList, r, interactionThresh, dx)
-            loopNeighbour!(key, neighbourCells, cellLists, pairsList, r, interactionThresh, dx)
+            sameCellPairs!(cellLists[key], pairsList, r, cellListThresh, dx)
+            loopNeighbour!(key, neighbourCells, cellLists, pairsList, r, cellListThresh, dx)
 
             # for jj=1:3
         	# 	if key[jj]==1
@@ -47,12 +47,12 @@ module CellListFunctions
     end
 
     # Allocate all particles in matrix r to grid points. Return Dictionary cellLists mapping (x,y,z) indices to list of particles.
-    @inline @views function gridAllocate(r, N, interactionThresh)
+    @inline @views function gridAllocate(r, N, cellListThresh)
 
         cellLists = Dictionary{Intx3,Vector{Int64}}()
 
         for i = 1:N
-            indexTuple = (ceil.(Int64,r[i,:]./interactionThresh)...,)
+            indexTuple = (ceil.(Int64,r[i,:]./cellListThresh)...,)
             if indexTuple ∉ keys(cellLists)
                 insert!(cellLists,indexTuple,[i])
             else
@@ -82,12 +82,12 @@ module CellListFunctions
         return neighbourCells
     end
 
-    @inline @views function sameCellPairs!(cellList, pairsList, r, interactionThresh, dx)
+    @inline @views function sameCellPairs!(cellList, pairsList, r, cellListThresh, dx)
         len = length(cellList)
         if len >= 2
             for i=1:len-1
                 for j=i+1:len
-                    addOrNot!(cellList[i], cellList[j], r, interactionThresh, pairsList, dx)
+                    addOrNot!(cellList[i], cellList[j], r, cellListThresh, pairsList, dx)
                 end
             end
         end
@@ -95,31 +95,31 @@ module CellListFunctions
     end
 
     #
-    @inline @views function loopNeighbour!(key, neighbourCells, cellLists, pairsList, r, interactionThresh, dx)
+    @inline @views function loopNeighbour!(key, neighbourCells, cellLists, pairsList, r, cellListThresh, dx)
         getForwardCell!(neighbourCells, key)
         for neighbourIndex in neighbourCells
             if neighbourIndex ∈ keys(cellLists)
-                findPair!(cellLists[key], cellLists[neighbourIndex], pairsList, r, interactionThresh, dx)
+                findPair!(cellLists[key], cellLists[neighbourIndex], pairsList, r, cellListThresh, dx)
             end
         end
         return pairsList
     end
 
     # Function to loop over all particles in two given grid points and then call function to test whether each particle pair is in interaction range
-    @inline @views function findPair!(cellList1, cellList2, pairsList, r, interactionThresh, dx)
+    @inline @views function findPair!(cellList1, cellList2, pairsList, r, cellListThresh, dx)
         for P1 in cellList1
             for P2 in cellList2
-                addOrNot!(P1, P2, r, interactionThresh, pairsList, dx)
+                addOrNot!(P1, P2, r, cellListThresh, pairsList, dx)
             end
         end
         return pairsList
     end
 
-    # Test whether two points P1 and P2 are within separation limit interactionThresh; if so, add tuple (P1,P2) to vector of pairs pairsList
-    @inline @views function addOrNot!(P1, P2, r, interactionThresh, pairsList, dx)
+    # Test whether two points P1 and P2 are within separation limit cellListThresh; if so, add tuple (P1,P2) to vector of pairs pairsList
+    @inline @views function addOrNot!(P1, P2, r, cellListThresh, pairsList, dx)
         dx .= r[P1,:].-r[P2,:]
         distSq = dx⋅dx
-        if distSq <= interactionThresh^2
+        if distSq <= cellListThresh^2
             push!(pairsList, (P1,P2)) # Add this pair to array of neighbour pairs if within range
         end
         return pairsList

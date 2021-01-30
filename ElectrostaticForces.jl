@@ -12,7 +12,7 @@ module ElectrostaticForces
 using LinearAlgebra
 using LennardJones
 
-@inline @views function electrostaticForces!(N,r,Ω,E,F,τ,rᵢⱼ,x,y,dummyVectors,tID,DParallel,DPerpendicular,DRotation,kT,ϵ,σ,electrostaticThresh,electrostaticPairs,blackWidth,colouredWidth,Q)
+@inline @views function electrostaticForces!(N,r,Ω,E,F,τ,rᵢⱼ,x,y,dummyVectors,tID,DParallel,DPerpendicular,DRotation,kT,ϵ,σ,electroThresh,electrostaticPairs,blackWidth,colouredWidth,Qₑ)
 
     # for (i,j) in electrostaticPairs
     #     μ = (i-5)*colouredWidth/2.0 + (i-5)*blackWidth/2.0
@@ -22,7 +22,7 @@ using LennardJones
     #     rMag = norm(rᵢⱼ[:,tID])
     #
     #     if rMag > σ
-    #         FMag  = Q/(4*π*rMag^2)
+    #         FMag  = Qₑ/(4*π*rMag^2)
     #         rᵢⱼ[:,tID] .*= FMag/rMag
     #         # Linear forces acting on rods x and y using orthonormal basis vectors
     #         F[x,:,tID] .+= (DPerpendicular/kT)*((rᵢⱼ[:,tID]⋅E[x,1,:]).*E[x,1,:] .+ (rᵢⱼ[:,tID]⋅E[x,2,:]).*E[x,2,:]) .+ (DParallel/kT)*(rᵢⱼ[:,tID]⋅Ω[x,:]).*Ω[x,:]
@@ -44,9 +44,9 @@ using LennardJones
                 rᵢⱼ[:,tID] .= r[y,:] .- r[x,:] .+ μ.*Ω[y,:] .- λ.*Ω[x,:]
                 rMag = norm(rᵢⱼ[:,tID])
 
-                if σ < rMag < electrostaticThresh
+                if rMag < electroThresh
 
-                    iseven(i-j) ? FMag = Q/(4*π*rMag^2) : FMag = -Q/(4*π*rMag^2)
+                    iseven(i-j) ? FMag = Qₑ/(4*π*rMag^2) : FMag = 0.0#-Qₑ/(4*π*rMag^2)
 
                     rᵢⱼ[:,tID] .*= FMag/rMag
                     # Linear forces acting on rods x and y using orthonormal basis vectors

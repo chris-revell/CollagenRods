@@ -29,13 +29,10 @@ using Initialise
 using Integrate
 using BoundaryForces
 
-@inline @views function simulate(N,L,σ,ϵ,Q,tMax,containerRadius,containerVolume,outputToggle,renderToggle)
+@inline @views function simulate(N,L,σ,ϵ,Qₑ,Qcov,tMax,electroThresh,covalentThresh,cellListThresh,containerRadius,containerVolume,outputToggle,renderToggle)
 
     η                 = 1.0   # Solvent shear viscocity
     kT                = 1.0   # Boltzman constant*Temperature
-
-    # Interaction threshold for cell list grid
-    interactionThresh = 1.3*L
 
     r         = SizedArray{Tuple{N,3}}(zeros(Float64,N,3))                      # Random initial centrepoint positions of all rods
     Ω         = SizedArray{Tuple{N,3}}(zeros(Float64,N,3))                      # Random initial orientations of all rods
@@ -53,20 +50,20 @@ using BoundaryForces
     allRands           = MVector{5}(zeros(Float64,5))
     electrostaticPairs = SVector{8}([(1,3),(2,4),(3,5),(4,6),(5,7),(6,8),(7,9),(9,1)])
 
-    D₀,DParallel,DPerpendicular,DRotation,foldername,outfile,threadRNG = initialise!(L,σ,ϵ,kT,Q,η,N,tMax,containerRadius,containerVolume,interactionThresh,r,Ω,outputToggle)
+    D₀,DParallel,DPerpendicular,DRotation,foldername,outfile,threadRNG = initialise!(L,σ,ϵ,kT,Qₑ,Qcov,η,N,tMax,electroThresh,covalentThresh,cellListThresh,containerRadius,containerVolume,r,Ω,outputToggle)
 
     # Iterate until max run time reached
     t = 0.0 # Initialise system time
     while t < tMax
 
         # Create list of particle interaction pairs based on cell lists algorithm
-        pairsList = findPairs!(N,r,interactionThresh,neighbourCells,rᵢⱼ[:,1])
+        pairsList = findPairs!(N,r,cellListThresh,neighbourCells,rᵢⱼ[:,1])
 
         # Find perpendicular basis vectors for each rod
         orthonormalBases!(N,Ω,E,xVector)
 
         # Calculate attractive and repulsive forces between rods
-        interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Q,dummyVectors,electrostaticPairs)
+        interRodForces!(pairsList,N,r,Ω,F,τ,E,rᵢⱼ,DParallel,DPerpendicular,DRotation,kT,L,ϵ,σ,Qₑ,Qcov,dummyVectors,electrostaticPairs,electroThresh,covalentThresh)
 
         # Calculate forces on rods from system boundary
         boundaryForces!(N,L,r,Ω,F,τ,E,containerRadius,σ,ϵ,DParallel,DPerpendicular,DRotation,kT)
@@ -76,7 +73,7 @@ using BoundaryForces
 
         # Adapt timestep according to force magnitudes
         Δt = adaptTimestep!(N,F,τ,ξr,ξΩ,σ,kT,L)
-        
+
         # Forward Euler integration of overdamped Langevin equation for position and orientation, given drift and stochastic terms.
         t = integrate!(r,Ω,F,τ,ξr,ξΩ,t,Δt)
 

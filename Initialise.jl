@@ -15,7 +15,7 @@ using Base.Threads
 using OutputData
 using CreateRunDirectory
 
-@inline @views function initialise!(L,σ,ϵ,kT,Q,η,N,tMax,containerRadius,containerVolume,interactionThresh,r,Ω,outputToggle)
+@inline @views function initialise!(L,σ,ϵ,kT,Qₑ,Qcov,η,N,tMax,electroThresh,covalentThresh,cellListThresh,containerRadius,containerVolume,r,Ω,outputToggle)
 
     # Diffusion constants from Löwen Phys Rev E 1994
     p                 = L/σ         # Rod aspect ratio
@@ -40,7 +40,7 @@ using CreateRunDirectory
     end
 
     if outputToggle==1
-        foldername = createRunDirectory(N,L,σ,ϵ,Q,p,η,kT,tMax,containerRadius,containerVolume,containerHeight,D₀,DParallel,DPerpendicular,DRotation,interactionThresh)
+        foldername = createRunDirectory(N,L,σ,ϵ,Qₑ,Qcov,p,η,kT,tMax,electroThresh,covalentThresh,cellListThresh,containerRadius,containerVolume,containerHeight,D₀,DParallel,DPerpendicular,DRotation)
         outfile = open("output/$(foldername)/output.txt","w")
         outputData(r,Ω,outfile,0,tMax)
     end

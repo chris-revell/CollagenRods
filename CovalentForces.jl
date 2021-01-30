@@ -12,7 +12,7 @@ module CovalentForces
 using LinearAlgebra
 using LennardJones
 
-@inline @views function covalentForces!(N,r,Ω,E,F,τ,rᵢⱼ,x,y,L,dummyVectors,tID,DParallel,DPerpendicular,DRotation,kT,ϵ,σ,Δu,covalentThresh,Q)
+@inline @views function covalentForces!(N,r,Ω,E,F,τ,rᵢⱼ,x,y,L,dummyVectors,tID,DParallel,DPerpendicular,DRotation,kT,ϵ,σ,Δu,covalentThresh,Qₑ)
 
     # Repeat forces in both directions within pair
     for (i,j) in [(x,y),(y,x)]
@@ -20,7 +20,7 @@ using LennardJones
         rᵢⱼ[:,tID] .= (r[j,:] .- Δu.*Ω[j,:]) .- (r[i,:] .+ 0.5*L.*Ω[i,:])
         rMag = sqrt(rᵢⱼ[:,tID]⋅rᵢⱼ[:,tID])
         if σ < rMag < covalentThresh
-            FMag  = 10.0*Q/(4.0*π*rMag^2) #(1.0+k₀*rMag)*(Q*exp(-k₀*rMag))/(4.0*π*ϵ₀*rMag^2)
+            FMag  = Qcov/(4.0*π*rMag^2) #(1.0+k₀*rMag)*(Qₑ*exp(-k₀*rMag))/(4.0*π*ϵ₀*rMag^2)
             rᵢⱼ[:,tID] .*= FMag/rMag
             # Linear forces acting on rods i and j using orthonormal basis vectors
             F[i,:,tID] .+= (DPerpendicular/kT)*((rᵢⱼ[:,tID]⋅E[i,1,:]).*E[i,1,:] .+ (rᵢⱼ[:,tID]⋅E[i,2,:]).*E[i,2,:]) .+ (DParallel/kT)*(rᵢⱼ[:,tID]⋅Ω[i,:]).*Ω[i,:]
@@ -33,7 +33,7 @@ using LennardJones
         rᵢⱼ[:,tID] .= (r[j,:] .+ Δu.*Ω[j,:]) .- (r[i,:] .- 0.5*L.*Ω[i,:])
         rMag = sqrt(rᵢⱼ[:,tID]⋅rᵢⱼ[:,tID])
         if σ < rMag < covalentThresh
-            FMag  = 10.0*Q/(4.0*π*rMag^2) #(1.0+k₀*rMag)*(Q*exp(-k₀*rMag))/(4.0*π*ϵ₀*rMag^2)
+            FMag  = Qcov/(4.0*π*rMag^2) #(1.0+k₀*rMag)*(Qₑ*exp(-k₀*rMag))/(4.0*π*ϵ₀*rMag^2)
             rᵢⱼ[:,tID] .*= FMag/rMag
             # Linear forces acting on rods i and j using orthonormal basis vectors
             F[i,:,tID] .+= (DPerpendicular/kT)*((rᵢⱼ[:,tID]⋅E[i,1,:]).*E[i,1,:] .+ (rᵢⱼ[:,tID]⋅E[i,2,:]).*E[i,2,:]) .+ (DParallel/kT)*(rᵢⱼ[:,tID]⋅Ω[i,:]).*Ω[i,:]
