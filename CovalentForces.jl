@@ -12,7 +12,7 @@ module CovalentForces
 using LinearAlgebra
 using LennardJones
 
-@inline @views function covalentForces!(N,r,Ω,E,F,τ,rᵢⱼ,x,y,L,dummyVectors,tID,DParallel,DPerpendicular,DRotation,kT,ϵ,σ,Δu,covalentThresh,Qₑ)
+@inline @views function covalentForces!(N,r,Ω,E,F,τ,rᵢⱼ,x,y,L,dummyVectors,tID,DParallel,DPerpendicular,DRotation,kT,ϵ,σ,Δu,covalentThresh,Qcov)
 
     # Repeat forces in both directions within pair
     for (i,j) in [(x,y),(y,x)]
