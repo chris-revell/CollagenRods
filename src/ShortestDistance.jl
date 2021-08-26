@@ -1,6 +1,6 @@
 #
 #  ShortestDistance.jl
-#  collagen-rods
+#  CollagenRods
 #
 #  Created by Christopher Revell on 07/10/2020.
 #

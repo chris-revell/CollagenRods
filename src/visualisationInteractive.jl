@@ -1,6 +1,6 @@
 #
 #  Simulate.jl
-#  collagen-rods
+#  CollagenRods
 #
 #  Created by Christopher Revell on 23/11/2020.
 #
@@ -10,7 +10,6 @@
 using DelimitedFiles
 using Makie
 using LinearAlgebra
-using AbstractPlotting
 using GeometryBasics
 using Colors
 

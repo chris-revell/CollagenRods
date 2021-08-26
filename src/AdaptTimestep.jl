@@ -1,6 +1,6 @@
 #
 #  AdaptTimestep.jl
-#  collagen-rods
+#  CollagenRods
 #
 #  Created by Christopher Revell on 08/10/2020.
 #

@@ -1,13 +1,13 @@
 #
-#  Simulate.jl
-#  collagen-rods
+#  CollagenRods.jl
+#  CollagenRods
 #
 #  Created by Christopher Revell on 23/11/2020.
 #
 #
 # Function to combine all other functions and run a full simulation given some input parameters.
 
-module Simulate
+module CollagenRods
 
 # Julia packages
 using LinearAlgebra
@@ -26,7 +26,7 @@ using CreateRunDirectory
 using OutputData
 using Visualise
 
-@inline @views function simulate(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
+@inline @views function collagenRods(N,L,σ,ϵ,Q,tMax,boxSize,outputToggle)
 
     η                 = 1.0   # Solvent shear viscocity
     kT                = 1.0   # Boltzman constant*Temperature
@@ -109,6 +109,6 @@ using Visualise
 
 end
 
-export simulate
+export collagenRods
 
 end

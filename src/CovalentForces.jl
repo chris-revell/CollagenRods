@@ -1,6 +1,6 @@
 #
 #  CovalentForces.jl
-#  collagen-rods
+#  CollagenRods
 #
 #  Created by Christopher Revell on 03/12/2020.
 #

@@ -1,6 +1,6 @@
 #
 #  main.jl
-#  collagen-rods
+#  CollagenRods
 #
 #  Created by Christopher Revell on 23/11/2020.
 #

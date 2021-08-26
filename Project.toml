@@ -1,0 +1,10 @@
+name = "CollagenRods"
+uuid = "705b6d83-4c7f-4758-a9c4-d6b061ba80f2"
+authors = ["chris-revell <christopher.revell@manchester.ac.uk>"]
+version = "0.1.0"
+
+[deps]
+DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"

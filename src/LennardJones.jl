@@ -1,6 +1,6 @@
 #
 #  LennardJones.jl
-#  collagen-rods
+#  CollagenRods
 #
 #  Created by Christopher Revell on 30/10/2020.
 #

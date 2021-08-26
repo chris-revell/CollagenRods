@@ -1,6 +1,6 @@
 #
 #  runVisualise.jl
-#  collagen-rods
+#  CollagenRods
 #
 #  Created by Christopher Revell on 01/12/2020.
 #

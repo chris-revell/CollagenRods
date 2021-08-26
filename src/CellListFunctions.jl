@@ -1,6 +1,6 @@
 #
 #  CellListFunctions.jl
-#  collagen-rods
+#  CollagenRods
 #
 #  Created by Christopher Revell on 12/10/2020.
 #

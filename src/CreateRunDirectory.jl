@@ -1,6 +1,6 @@
 #
 #  CreateRunDirectory.jl
-#  collagen-rods
+#  CollagenRods
 #
 #  Created by Christopher Revell on 15/10/2020.
 #
